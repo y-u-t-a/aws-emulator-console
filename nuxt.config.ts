@@ -4,6 +4,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui',
   ],
+  devtools: false,
   css: ['~/assets/css/main.css'],
   experimental: {
     typedPages: true,
