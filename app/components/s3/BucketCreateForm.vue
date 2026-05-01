@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { CreateS3BucketApiRequest } from '#shared/model/s3'
 
-const emit = defineEmits<{ created: [bucketName: string] }>()
+const emits = defineEmits<{
+  created: [bucketName: string]
+}>()
 
 const toast = useToast()
 
@@ -28,7 +30,7 @@ const submitCreate = async () => {
     })
     toast.add({ title: 'バケットを作成しました', description: name, color: 'success' })
     isOpen.value = false
-    emit('created', name)
+    emits('created', name)
   } catch (e) {
     toast.add({
       title: 'バケットの作成に失敗しました',
@@ -49,17 +51,12 @@ const submitCreate = async () => {
   >
     バケット作成
   </UButton>
-
-  <USlideover
+  <UModal
     v-model:open="isOpen"
-    title="バケット作成"
-    description="作成するバケットの名前を入力してください"
+    title="S3バケット作成"
   >
     <template #body>
-      <form
-        class="space-y-4"
-        @submit.prevent="submitCreate"
-      >
+      <UForm @submit.prevent="submitCreate">
         <UFormField
           label="バケット名"
           name="name"
@@ -73,7 +70,6 @@ const submitCreate = async () => {
             class="w-full"
           />
         </UFormField>
-
         <div class="flex justify-end gap-2">
           <UButton
             type="button"
@@ -92,7 +88,7 @@ const submitCreate = async () => {
             作成
           </UButton>
         </div>
-      </form>
+      </UForm>
     </template>
-  </USlideover>
+  </UModal>
 </template>
