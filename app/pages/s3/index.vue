@@ -5,10 +5,7 @@ const { data: buckets, status, error, refresh } = await useFetch('/api/s3/bucket
 </script>
 
 <template>
-  <div class="flex flex-col gap-3">
-    <h1 class="text-3xl sm:text-4xl">
-      S3
-    </h1>
+  <div>
     <div class="flex gap-3">
       <UButton
         icon="i-lucide-refresh-cw"

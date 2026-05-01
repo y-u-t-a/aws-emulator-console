@@ -4,6 +4,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui',
   ],
+  ssr: false,
   devtools: false,
   css: ['~/assets/css/main.css'],
   experimental: {

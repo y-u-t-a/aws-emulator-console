@@ -17,14 +17,14 @@ const formatDateTime = (date: Date) => {
     + ` ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
 }
 
-export const createBucket = async (bucket: string) => {
+export async function createBucket(bucket: string) {
   const command = new CreateBucketCommand({
     Bucket: bucket,
   })
   await S3.send(command)
 }
 
-export const getBucketList = async () => {
+export async function getBucketList() {
   const command = new ListBucketsCommand({})
   const response = await S3.send(command)
   const s3Buckets: S3Bucket[] = response.Buckets!.map((bucket) => {
@@ -71,7 +71,7 @@ export const getObjectDetail = async (bucket: string, key: string) => {
       Key: key,
       DisplayObjectName: key,
       Size: response.ContentLength!,
-      LastModified: formatDateTime(response.LastModified!),
+      LastModified: response.LastModified!.toLocaleString(),
     }
     return s3Object
   } catch {
