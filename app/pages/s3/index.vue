@@ -1,13 +1,7 @@
 <script setup lang="ts">
-import type { TableColumn } from '@nuxt/ui'
-import type { S3Bucket } from '#shared/model/s3'
+import BucketList from '~/components/s3/BucketList.vue'
 
 const { data: buckets, status, error, refresh } = await useFetch('/api/s3/buckets')
-
-const columns: TableColumn<S3Bucket>[] = [
-  { accessorKey: 'Name', header: 'バケット名' },
-  { accessorKey: 'CreationDate', header: '作成日時' },
-]
 </script>
 
 <template>
@@ -35,12 +29,10 @@ const columns: TableColumn<S3Bucket>[] = [
       title="バケット一覧の取得に失敗しました"
       :description="error.message"
     />
-    <UTable
+    <BucketList
       v-else
-      :data="buckets ?? []"
-      :columns="columns"
+      :buckets="buckets ?? []"
       :loading="status === 'pending'"
-      :empty-state="{ icon: 'i-lucide-database', label: 'バケットがありません' }"
     />
   </div>
 </template>
