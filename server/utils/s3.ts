@@ -1,0 +1,131 @@
+import { S3 } from './aws-sdk-client'
+import {
+  ListBucketsCommand,
+  ListObjectsV2Command,
+  GetObjectCommand,
+  DeleteObjectCommand,
+  DeleteBucketCommand,
+  PutObjectCommand,
+  CreateBucketCommand,
+} from '@aws-sdk/client-s3'
+import type { S3Bucket, S3Object } from '#shared/model/s3'
+
+const pad = (n: number) => n.toString().padStart(2, '0')
+
+const formatDateTime = (date: Date) => {
+  return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`
+    + ` ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+}
+
+export const createBucket = async (bucket: string) => {
+  const command = new CreateBucketCommand({
+    Bucket: bucket,
+  })
+  await S3.send(command)
+}
+
+export const getBucketList = async () => {
+  const command = new ListBucketsCommand({})
+  const response = await S3.send(command)
+  const s3Buckets: S3Bucket[] = response.Buckets!.map((bucket) => {
+    return { Name: bucket.Name!, CreationDate: formatDateTime(bucket.CreationDate!) }
+  })
+  return s3Buckets
+}
+
+export const getObjectList = async (bucket: string, prefix: string = '') => {
+  const command = new ListObjectsV2Command({
+    Bucket: bucket,
+    Prefix: prefix,
+  })
+  const response = await S3.send(command)
+  const contents = response.Contents || []
+  const filterPrefix = prefix.length === 0 ? '' : prefix + '/'
+  const s3Objects: S3Object[] = contents.map((content) => {
+    return {
+      Bucket: bucket,
+      Key: content.Key!,
+      DisplayObjectName: content.Key!.replace(filterPrefix, ''),
+      Size: content.Size!,
+      LastModified: formatDateTime(content.LastModified!),
+    }
+  })
+  const filteredS3Objects = s3Objects.filter((s3Object) => {
+    // 「prefix に至るフォルダ自身」と「prefix を除いた Key に / の後に文字列が続く Key」を除外することで
+    // prefix と同一レベルのオブジェクトをフィルタリングできる
+    return s3Object.Key != filterPrefix
+      && s3Object.Key.replace(filterPrefix, '').match(/\/.+/g) == null
+  })
+  return filteredS3Objects
+}
+
+export const getObjectDetail = async (bucket: string, key: string) => {
+  try {
+    const command = new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    })
+    const response = await S3.send(command)
+    const s3Object: S3Object = {
+      Bucket: bucket,
+      Key: key,
+      DisplayObjectName: key,
+      Size: response.ContentLength!,
+      LastModified: formatDateTime(response.LastModified!),
+    }
+    return s3Object
+  } catch {
+    return undefined
+  }
+}
+
+const clearS3Bucket = async (bucket: string) => {
+  const command = new ListObjectsV2Command({
+    Bucket: bucket,
+  })
+  const response = await S3.send(command)
+  const objects = response.Contents || []
+  objects.forEach(async (object) => {
+    const command = new DeleteObjectCommand({
+      Bucket: bucket,
+      Key: object.Key,
+    })
+    await S3.send(command)
+  })
+}
+
+export const deleteBucket = async (bucket: string) => {
+  await clearS3Bucket(bucket)
+  // オブジェクトが削除が反映されるまで 500ms 待つ
+  await new Promise(resolve => setTimeout(resolve, 500))
+  const command = new DeleteBucketCommand({
+    Bucket: bucket,
+  })
+  await S3.send(command)
+}
+
+export const deleteObjectByKey = async (bucket: string, key: string) => {
+  const command = new DeleteObjectCommand({
+    Bucket: bucket,
+    Key: key,
+  })
+  await S3.send(command)
+}
+
+export const uploadObject = async (bucket: string, key: string, file: File) => {
+  const command = new PutObjectCommand({
+    Bucket: bucket,
+    Key: key,
+    Body: file,
+  })
+  await S3.send(command)
+}
+
+export const downloadFile = async (bucket: string, key: string) => {
+  const command = new GetObjectCommand({
+    Bucket: bucket,
+    Key: key,
+  })
+  const response = await S3.send(command)
+  return response.Body!
+}
