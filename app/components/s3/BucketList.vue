@@ -2,7 +2,7 @@
 import type { TableColumn } from '@nuxt/ui'
 import type { S3Bucket } from '~~/shared/model/s3'
 
-const _props = defineProps<{
+defineProps<{
   buckets: S3Bucket[]
   loading: boolean
 }>()
