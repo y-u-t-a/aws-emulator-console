@@ -67,8 +67,7 @@ async function submitUpload() {
     form.append('prefix', props.prefix)
     form.append('file', file, file.name)
     try {
-      const url: string = `/api/s3/${props.bucketName}/objects`
-      await $fetch(url, {
+      await $fetch(`/api/s3/${props.bucketName}/objects` as '/api/s3/:bucketName/objects', {
         method: 'POST',
         body: form,
       })

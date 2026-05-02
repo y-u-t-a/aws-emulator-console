@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from '@nuxt/ui'
+import type { S3Object } from '~~/shared/model/s3'
 
 const route = useRoute('s3-bucketName-objectKeys')
+const selected = shallowRef<S3Object[]>([])
 
 const objectKeys = computed(() => {
   const keys = route.params.objectKeys
@@ -58,7 +60,7 @@ const { data: objects, status, error, refresh } = await useFetch(
         color="neutral"
         variant="outline"
         :loading="status === 'pending'"
-        @click="refresh()"
+        @click="selected = []; refresh()"
       >
         再読み込み
       </UButton>
@@ -72,6 +74,11 @@ const { data: objects, status, error, refresh } = await useFetch(
         :prefix="prefix"
         @uploaded="refresh()"
       />
+      <S3ObjectDeleteButton
+        :bucket-name="route.params.bucketName"
+        :objects="selected"
+        @deleted="selected = []; refresh()"
+      />
     </div>
     <UAlert
       v-if="error"
@@ -83,6 +90,7 @@ const { data: objects, status, error, refresh } = await useFetch(
     />
     <S3ObjectList
       v-else
+      v-model:selected="selected"
       :bucket-name="route.params.bucketName"
       :object-keys="objectKeys"
       :objects="objects ?? []"

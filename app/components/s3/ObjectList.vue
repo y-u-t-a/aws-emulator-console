@@ -2,14 +2,19 @@
 import type { TableColumn } from '@nuxt/ui'
 import type { S3Object } from '~~/shared/model/s3'
 
-defineProps<{
+const props = defineProps<{
   bucketName: string
   objectKeys: string[]
   objects: S3Object[]
   loading: boolean
 }>()
 
+const selected = defineModel<S3Object[]>('selected', { default: () => [] })
+
+const { rowSelection } = useTableSelection(() => props.objects, item => item.Key, selected)
+
 const columns: TableColumn<S3Object>[] = [
+  createSelectColumn<S3Object>(),
   { accessorKey: 'DisplayObjectName', header: 'オブジェクト名' },
   { accessorKey: 'Size', header: 'サイズ' },
   { accessorKey: 'LastModified', header: '最終更新日時' },
@@ -18,6 +23,7 @@ const columns: TableColumn<S3Object>[] = [
 
 <template>
   <UTable
+    v-model:row-selection="rowSelection"
     :data="objects"
     :columns="columns"
     :loading="loading"

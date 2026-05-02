@@ -119,7 +119,32 @@ export async function deleteBucket(bucket: string) {
   await S3.send(command)
 }
 
+async function deleteFolder(bucket: string, prefix: string) {
+  let continuationToken: string | undefined = undefined
+  do {
+    const listCommand: ListObjectsV2Command = new ListObjectsV2Command({
+      Bucket: bucket,
+      Prefix: prefix,
+      ContinuationToken: continuationToken,
+    })
+    const response = await S3.send(listCommand)
+    const objects = response.Contents || []
+    await Promise.all(objects.map((object) => {
+      const deleteCommand = new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: object.Key,
+      })
+      return S3.send(deleteCommand)
+    }))
+    continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined
+  } while (continuationToken)
+}
+
 export async function deleteObjectByKey(bucket: string, key: string) {
+  if (key.endsWith('/')) {
+    await deleteFolder(bucket, key)
+    return
+  }
   const command = new DeleteObjectCommand({
     Bucket: bucket,
     Key: key,

@@ -17,6 +17,13 @@ export const deleteS3BucketsApiRequestSchema = v.object({
   ),
 })
 
+export const deleteS3ObjectsApiRequestSchema = v.object({
+  keys: v.pipe(
+    v.array(v.pipe(v.string(), v.minLength(1))),
+    v.minLength(1, '削除するオブジェクトを指定してください'),
+  ),
+})
+
 export const createS3FolderApiRequestSchema = v.object({
   bucketName: v.pipe(v.string(), v.minLength(1)),
   prefix: v.string(),
