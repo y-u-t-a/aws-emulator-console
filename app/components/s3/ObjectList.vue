@@ -14,14 +14,6 @@ const columns: TableColumn<S3Object>[] = [
   { accessorKey: 'Size', header: 'サイズ' },
   { accessorKey: 'LastModified', header: '最終更新日時' },
 ]
-
-function formatSize(size: number | undefined) {
-  if (size === undefined) return ''
-  if (size < 1024) return `${size} B`
-  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`
-  if (size < 1024 * 1024 * 1024) return `${(size / 1024 / 1024).toFixed(1)} MB`
-  return `${(size / 1024 / 1024 / 1024).toFixed(1)} GB`
-}
 </script>
 
 <template>

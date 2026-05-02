@@ -5,7 +5,7 @@ import type { CreateS3FolderApiRequest } from '#shared/model/s3'
 
 const props = defineProps<{
   bucketName: string
-  objectKeys: string[]
+  prefix: string
 }>()
 
 const emits = defineEmits<{
@@ -26,7 +26,7 @@ const isValid = computed(() => formRef.value?.getErrors().length === 0)
 
 function openCreateForm() {
   state.bucketName = props.bucketName
-  state.prefix = props.objectKeys.length === 0 ? '' : `${props.objectKeys.join('/')}/`
+  state.prefix = props.prefix
   state.folderName = ''
   isOpen.value = true
 }

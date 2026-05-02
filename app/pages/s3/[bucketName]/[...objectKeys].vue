@@ -8,6 +8,8 @@ const objectKeys = computed(() => {
   return Array.isArray(keys) ? keys : []
 })
 
+const prefix = computed(() => objectKeys.value.length === 0 ? '' : `${objectKeys.value.join('/')}/`)
+
 const bread = computed<BreadcrumbItem[]>(() => [
   {
     label: route.params.bucketName,
@@ -32,9 +34,9 @@ const bread = computed<BreadcrumbItem[]>(() => [
 ])
 
 const { data: objects, status, error, refresh } = await useFetch(
-  () => objectKeys.value.length === 0
+  () => prefix.value === ''
     ? `/api/s3/${route.params.bucketName}/objects`
-    : `/api/s3/${route.params.bucketName}/objects/${objectKeys.value.join('/')}`,
+    : `/api/s3/${route.params.bucketName}/objects/${prefix.value}`,
 )
 </script>
 
@@ -56,7 +58,7 @@ const { data: objects, status, error, refresh } = await useFetch(
       </UButton>
       <S3FolderCreateForm
         :bucket-name="route.params.bucketName"
-        :object-keys="objectKeys"
+        :prefix="prefix"
         @created="refresh()"
       />
     </div>
