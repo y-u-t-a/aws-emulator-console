@@ -1,16 +1,18 @@
+import * as v from 'valibot'
 import { deleteBucket } from '#server/utils/s3'
-import type { DeleteS3BucketsApiRequest } from '#shared/model/s3'
+import { deleteS3BucketsApiRequestSchema } from '#shared/schema/s3'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody<Partial<DeleteS3BucketsApiRequest>>(event)
-  const names = body?.names?.map(name => name.trim()).filter(name => name.length > 0) ?? []
+  const result = await readValidatedBody(event, v.safeParser(deleteS3BucketsApiRequestSchema))
 
-  if (names.length === 0) {
+  if (!result.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: '削除するバケット名を指定してください',
+      statusMessage: result.issues[0]?.message ?? 'リクエストが不正です',
     })
   }
+
+  const { names } = result.output
 
   const failures: { name: string, message: string }[] = []
   for (const name of names) {

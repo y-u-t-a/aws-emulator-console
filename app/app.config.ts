@@ -4,5 +4,13 @@ export default defineAppConfig({
       primary: 'orange',
       neutral: 'slate',
     },
+    form: {
+      base: 'disabled:opacity-40',
+    },
+    button: {
+      slots: {
+        base: 'disabled:opacity-40',
+      },
+    },
   },
 })

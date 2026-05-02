@@ -1,18 +1,18 @@
+import * as v from 'valibot'
 import { createBucket } from '#server/utils/s3'
-import type { CreateS3BucketApiRequest } from '#shared/model/s3'
-
-const BUCKET_NAME_PATTERN = /^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/
+import { createS3BucketApiRequestSchema } from '#shared/schema/s3'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody<Partial<CreateS3BucketApiRequest>>(event)
-  const name = body?.name?.trim()
+  const result = await readValidatedBody(event, v.safeParser(createS3BucketApiRequestSchema))
 
-  if (!name || !BUCKET_NAME_PATTERN.test(name)) {
+  if (!result.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'バケット名は3〜63文字の英小文字・数字・ハイフン・ピリオドで指定してください',
+      statusMessage: result.issues[0]?.message ?? 'リクエストが不正です',
     })
   }
+
+  const { name } = result.output
 
   try {
     await createBucket(name)

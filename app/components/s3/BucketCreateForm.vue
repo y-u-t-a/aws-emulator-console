@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Form, FormSubmitEvent } from '@nuxt/ui'
+import { createS3BucketApiRequestSchema } from '#shared/schema/s3'
 import type { CreateS3BucketApiRequest } from '#shared/model/s3'
 
 const emits = defineEmits<{
@@ -8,20 +10,20 @@ const emits = defineEmits<{
 const toast = useToast()
 
 const isOpen = ref(false)
-const bucketName = ref('')
+const state = reactive<CreateS3BucketApiRequest>({
+  name: '',
+})
 const submitting = ref(false)
-const trimmedBucketName = computed(() => bucketName.value.trim())
-const canCreate = computed(() => trimmedBucketName.value.length > 0)
+const formRef = useTemplateRef<Form<CreateS3BucketApiRequest>>('form')
+const isValid = computed(() => formRef.value?.getErrors().length === 0)
 
-const openCreateForm = () => {
-  bucketName.value = ''
+function openCreateForm() {
+  state.name = ''
   isOpen.value = true
 }
 
-const submitCreate = async () => {
-  if (!canCreate.value) return
-
-  const name = trimmedBucketName.value
+async function submitCreate(event: FormSubmitEvent<CreateS3BucketApiRequest>) {
+  const { name } = event.data
   submitting.value = true
   try {
     await $fetch('/api/s3/buckets', {
@@ -56,7 +58,12 @@ const submitCreate = async () => {
     title="S3バケット作成"
   >
     <template #body>
-      <UForm @submit.prevent="submitCreate">
+      <UForm
+        ref="form"
+        :schema="createS3BucketApiRequestSchema"
+        :state="state"
+        @submit="submitCreate"
+      >
         <UFormField
           label="バケット名"
           name="name"
@@ -64,7 +71,7 @@ const submitCreate = async () => {
           required
         >
           <UInput
-            v-model="bucketName"
+            v-model="state.name"
             placeholder="my-bucket"
             autofocus
             class="w-full"
@@ -83,7 +90,7 @@ const submitCreate = async () => {
             type="submit"
             color="primary"
             :loading="submitting"
-            :disabled="!canCreate"
+            :disabled="!isValid"
           >
             作成
           </UButton>
