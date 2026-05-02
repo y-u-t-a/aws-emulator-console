@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import type { S3Bucket } from '~~/shared/model/s3'
+
 const { data: buckets, status, error, refresh } = await useFetch('/api/s3/buckets')
+const selected = shallowRef<S3Bucket[]>([])
 </script>
 
 <template>
@@ -10,7 +13,7 @@ const { data: buckets, status, error, refresh } = await useFetch('/api/s3/bucket
         color="neutral"
         variant="outline"
         :loading="status === 'pending'"
-        @click="refresh()"
+        @click="selected = []; refresh()"
       >
         再読み込み
       </UButton>
@@ -26,8 +29,10 @@ const { data: buckets, status, error, refresh } = await useFetch('/api/s3/bucket
     />
     <S3BucketList
       v-else
+      v-model:selected="selected"
       :buckets="buckets ?? []"
       :loading="status === 'pending'"
     />
+    {{ selected }}
   </div>
 </template>
