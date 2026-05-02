@@ -19,5 +19,11 @@ const columns: TableColumn<S3Bucket>[] = [
     :columns="columns"
     :loading="loading"
     :empty-state="{ icon: 'i-lucide-database', label: 'バケットがありません' }"
-  />
+  >
+    <template #Name-cell="{ getValue }">
+      <RouterLink :to="{ name: 's3-bucketName', params: { bucketName: getValue<string>() } }">
+        {{ getValue() }}
+      </RouterLink>
+    </template>
+  </UTable>
 </template>
