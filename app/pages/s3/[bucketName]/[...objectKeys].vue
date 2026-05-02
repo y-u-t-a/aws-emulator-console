@@ -1,26 +1,50 @@
 <script setup lang="ts">
+import type { BreadcrumbItem } from '@nuxt/ui'
+
 const route = useRoute('s3-bucketName-objectKeys')
 
 const objectKeys = computed(() => {
   const keys = route.params.objectKeys
-  if (!keys) return []
-  return Array.isArray(keys) ? keys : [keys]
+  return Array.isArray(keys) ? keys : []
 })
-const prefix = computed(() => objectKeys.value.join('/'))
+
+const bread = computed<BreadcrumbItem[]>(() => [
+  {
+    label: route.params.bucketName,
+    to: {
+      name: 's3-bucketName-objectKeys',
+      params: {
+        bucketName: route.params.bucketName,
+        objectKeys: [],
+      },
+    },
+  },
+  ...objectKeys.value.map<BreadcrumbItem>((obj, index) => ({
+    label: obj,
+    to: {
+      name: 's3-bucketName-objectKeys',
+      params: {
+        bucketName: route.params.bucketName,
+        objectKeys: objectKeys.value.slice(0, index + 1),
+      },
+    },
+  })),
+])
 
 const { data: objects, status, error, refresh } = await useFetch(
   () => objectKeys.value.length === 0
     ? `/api/s3/${route.params.bucketName}/objects`
-    : `/api/s3/${route.params.bucketName}/objects/${prefix.value}`,
+    : `/api/s3/${route.params.bucketName}/objects/${objectKeys.value.join('/')}`,
 )
 </script>
 
 <template>
   <div>
-    <div class="mb-3 flex items-center gap-3">
-      <h1 class="text-lg font-semibold">
-        {{ route.params.bucketName }}{{ prefix ? ` / ${prefix}` : '' }}
-      </h1>
+    <UBreadcrumb
+      :items="bread"
+      class="mb-3"
+    />
+    <div class="flex items-center gap-3">
       <UButton
         icon="i-lucide-refresh-cw"
         color="neutral"
