@@ -12,6 +12,12 @@ const prefix = computed(() => objectKeys.value.length === 0 ? '' : `${objectKeys
 
 const bread = computed<BreadcrumbItem[]>(() => [
   {
+    label: 'バケット',
+    to: {
+      name: 's3',
+    },
+  },
+  {
     label: route.params.bucketName,
     to: {
       name: 's3-bucketName-objectKeys',
