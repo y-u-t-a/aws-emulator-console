@@ -26,9 +26,9 @@ const columns: TableColumn<S3Bucket>[] = [
     :loading="loading"
     :empty-state="{ icon: 'i-lucide-database', label: 'バケットがありません' }"
   >
-    <template #Name-cell="{ getValue }">
-      <RouterLink :to="{ name: 's3-bucketName', params: { bucketName: getValue<string>() } }">
-        {{ getValue() }}
+    <template #Name-cell="{ row }">
+      <RouterLink :to="{ name: 's3-bucketName-objectKeys', params: { bucketName: row.original.Name, objectKeys: [] } }">
+        {{ row.original.Name }}
       </RouterLink>
     </template>
   </UTable>

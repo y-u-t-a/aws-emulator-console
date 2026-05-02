@@ -13,14 +13,10 @@ export type S3Bucket = {
 export type S3Object = {
   Bucket: string
   Key: string
+  Type: 'file' | 'folder'
   DisplayObjectName?: string
   Size?: number
   LastModified?: string
-}
-
-export type S3ObjectPageApiResponse = {
-  s3ObjectDetail?: S3Object
-  s3ObjectList: S3Object[]
 }
 
 export type CreateS3BucketApiRequest = v.InferInput<typeof createS3BucketApiRequestSchema>

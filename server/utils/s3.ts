@@ -28,29 +28,46 @@ export async function getBucketList() {
 }
 
 export async function getObjectList(bucket: string, prefix: string = '') {
-  const command = new ListObjectsV2Command({
-    Bucket: bucket,
-    Prefix: prefix,
-  })
-  const response = await S3.send(command)
-  const contents = response.Contents || []
-  const filterPrefix = prefix.length === 0 ? '' : prefix + '/'
-  const s3Objects: S3Object[] = contents.map((content) => {
-    return {
+  const filterPrefix = !prefix || prefix.endsWith('/') ? prefix : `${prefix}/`
+  const folders: S3Object[] = []
+  const files: S3Object[] = []
+  let continuationToken: string | undefined = undefined
+
+  do {
+    const command: ListObjectsV2Command = new ListObjectsV2Command({
       Bucket: bucket,
-      Key: content.Key!,
-      DisplayObjectName: content.Key!.replace(filterPrefix, ''),
-      Size: content.Size!,
-      LastModified: formatDateTime(content.LastModified!),
+      Prefix: filterPrefix,
+      Delimiter: '/',
+      ContinuationToken: continuationToken,
+    })
+    const response = await S3.send(command)
+
+    for (const commonPrefix of response.CommonPrefixes ?? []) {
+      const key = commonPrefix.Prefix!
+      folders.push({
+        Bucket: bucket,
+        Key: key,
+        Type: 'folder',
+        DisplayObjectName: key.slice(filterPrefix.length).replace(/\/$/, ''),
+      })
     }
-  })
-  const filteredS3Objects = s3Objects.filter((s3Object) => {
-    // 「prefix に至るフォルダ自身」と「prefix を除いた Key に / の後に文字列が続く Key」を除外することで
-    // prefix と同一レベルのオブジェクトをフィルタリングできる
-    return s3Object.Key != filterPrefix
-      && s3Object.Key.replace(filterPrefix, '').match(/\/.+/g) == null
-  })
-  return filteredS3Objects
+
+    for (const content of response.Contents ?? []) {
+      if (content.Key === filterPrefix) continue
+      files.push({
+        Bucket: bucket,
+        Key: content.Key!,
+        Type: 'file',
+        DisplayObjectName: content.Key!.slice(filterPrefix.length),
+        Size: content.Size!,
+        LastModified: formatDateTime(content.LastModified!),
+      })
+    }
+
+    continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined
+  } while (continuationToken)
+
+  return [...folders, ...files]
 }
 
 export async function getObjectDetail(bucket: string, key: string) {
@@ -63,6 +80,7 @@ export async function getObjectDetail(bucket: string, key: string) {
     const s3Object: S3Object = {
       Bucket: bucket,
       Key: key,
+      Type: 'file',
       DisplayObjectName: key,
       Size: response.ContentLength!,
       LastModified: formatDateTime(response.LastModified!),
