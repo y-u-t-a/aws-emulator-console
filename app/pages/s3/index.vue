@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import BucketList from '~/components/s3/BucketList.vue'
-
 const { data: buckets, status, error, refresh } = await useFetch('/api/s3/buckets')
 </script>
 
@@ -26,7 +24,7 @@ const { data: buckets, status, error, refresh } = await useFetch('/api/s3/bucket
       title="バケット一覧の取得に失敗しました"
       :description="error.message"
     />
-    <BucketList
+    <S3BucketList
       v-else
       :buckets="buckets ?? []"
       :loading="status === 'pending'"
