@@ -18,6 +18,10 @@ const selected = shallowRef<S3Bucket[]>([])
         再読み込み
       </UButton>
       <S3BucketCreateForm @created="refresh()" />
+      <S3BucketDeleteButton
+        :buckets="selected"
+        @deleted="selected = []; refresh()"
+      />
     </div>
     <UAlert
       v-if="error"
@@ -33,6 +37,5 @@ const selected = shallowRef<S3Bucket[]>([])
       :buckets="buckets ?? []"
       :loading="status === 'pending'"
     />
-    {{ selected }}
   </div>
 </template>

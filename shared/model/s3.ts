@@ -15,6 +15,10 @@ export type CreateS3BucketApiRequest = {
   name: string
 }
 
+export type DeleteS3BucketsApiRequest = {
+  names: string[]
+}
+
 export type CreateS3FolderApiRequest = {
   bucketName: string
   prefix: string
