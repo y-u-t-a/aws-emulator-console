@@ -61,6 +61,11 @@ const { data: objects, status, error, refresh } = await useFetch(
         :prefix="prefix"
         @created="refresh()"
       />
+      <S3ObjectUploadForm
+        :bucket-name="route.params.bucketName"
+        :prefix="prefix"
+        @uploaded="refresh()"
+      />
     </div>
     <UAlert
       v-if="error"

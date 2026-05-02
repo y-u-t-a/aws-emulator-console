@@ -139,11 +139,12 @@ export async function createFolder(bucket: string, prefix: string, folderName: s
   return key
 }
 
-export async function uploadObject(bucket: string, key: string, file: File) {
+export async function uploadObject(bucket: string, key: string, body: Uint8Array, contentType?: string) {
   const command = new PutObjectCommand({
     Bucket: bucket,
     Key: key,
-    Body: file,
+    Body: body,
+    ContentType: contentType,
   })
   await S3.send(command)
 }
