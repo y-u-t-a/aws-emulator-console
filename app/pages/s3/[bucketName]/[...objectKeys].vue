@@ -54,6 +54,11 @@ const { data: objects, status, error, refresh } = await useFetch(
       >
         再読み込み
       </UButton>
+      <S3FolderCreateForm
+        :bucket-name="route.params.bucketName"
+        :object-keys="objectKeys"
+        @created="refresh()"
+      />
     </div>
     <UAlert
       v-if="error"

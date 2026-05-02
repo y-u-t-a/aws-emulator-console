@@ -127,6 +127,18 @@ export async function deleteObjectByKey(bucket: string, key: string) {
   await S3.send(command)
 }
 
+export async function createFolder(bucket: string, prefix: string, folderName: string) {
+  const normalizedPrefix = !prefix || prefix.endsWith('/') ? prefix : `${prefix}/`
+  const key = `${normalizedPrefix}${folderName}/`
+  const command = new PutObjectCommand({
+    Bucket: bucket,
+    Key: key,
+    Body: '',
+  })
+  await S3.send(command)
+  return key
+}
+
 export async function uploadObject(bucket: string, key: string, file: File) {
   const command = new PutObjectCommand({
     Bucket: bucket,

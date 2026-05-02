@@ -20,5 +20,11 @@ export const deleteS3BucketsApiRequestSchema = v.object({
 export const createS3FolderApiRequestSchema = v.object({
   bucketName: v.pipe(v.string(), v.minLength(1)),
   prefix: v.string(),
-  folderName: v.pipe(v.string(), v.minLength(1)),
+  folderName: v.pipe(
+    v.string(),
+    v.trim(),
+    v.minLength(1, 'フォルダ名を入力してください'),
+    v.maxLength(255, 'フォルダ名は255文字以内で指定してください'),
+    v.regex(/^[^/]+$/, 'フォルダ名に "/" は含められません'),
+  ),
 })
