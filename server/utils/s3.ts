@@ -74,24 +74,27 @@ export async function getObjectDetail(bucket: string, key: string) {
 }
 
 async function clearS3Bucket(bucket: string) {
-  const command = new ListObjectsV2Command({
-    Bucket: bucket,
-  })
-  const response = await S3.send(command)
-  const objects = response.Contents || []
-  objects.forEach(async (object) => {
-    const command = new DeleteObjectCommand({
+  let continuationToken: string | undefined = undefined
+  do {
+    const listCommand: ListObjectsV2Command = new ListObjectsV2Command({
       Bucket: bucket,
-      Key: object.Key,
+      ContinuationToken: continuationToken,
     })
-    await S3.send(command)
-  })
+    const response = await S3.send(listCommand)
+    const objects = response.Contents || []
+    await Promise.all(objects.map((object) => {
+      const deleteCommand = new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: object.Key,
+      })
+      return S3.send(deleteCommand)
+    }))
+    continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined
+  } while (continuationToken)
 }
 
 export async function deleteBucket(bucket: string) {
   await clearS3Bucket(bucket)
-  // オブジェクトが削除が反映されるまで 500ms 待つ
-  await new Promise(resolve => setTimeout(resolve, 500))
   const command = new DeleteBucketCommand({
     Bucket: bucket,
   })
