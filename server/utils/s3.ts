@@ -1,4 +1,5 @@
 import { S3 } from './aws-sdk-client'
+import { formatDateTime } from './datetime'
 import {
   ListBucketsCommand,
   ListObjectsV2Command,
@@ -9,13 +10,6 @@ import {
   CreateBucketCommand,
 } from '@aws-sdk/client-s3'
 import type { S3Bucket, S3Object } from '#shared/model/s3'
-
-const pad = (n: number) => n.toString().padStart(2, '0')
-
-const formatDateTime = (date: Date) => {
-  return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}`
-    + ` ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
-}
 
 export async function createBucket(bucket: string) {
   const command = new CreateBucketCommand({
@@ -71,7 +65,7 @@ export const getObjectDetail = async (bucket: string, key: string) => {
       Key: key,
       DisplayObjectName: key,
       Size: response.ContentLength!,
-      LastModified: response.LastModified!.toLocaleString(),
+      LastModified: formatDateTime(response.LastModified!),
     }
     return s3Object
   } catch {
