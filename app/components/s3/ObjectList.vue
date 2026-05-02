@@ -36,7 +36,7 @@ const columns: TableColumn<S3Object>[] = [
         class="flex items-center gap-2"
       >
         <UIcon name="i-lucide-folder" />
-        {{ row.original.DisplayObjectName }}
+        {{ row.original.DisplayObjectName }}/
       </RouterLink>
       <span
         v-else
