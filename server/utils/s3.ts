@@ -27,7 +27,7 @@ export async function getBucketList() {
   return s3Buckets
 }
 
-export const getObjectList = async (bucket: string, prefix: string = '') => {
+export async function getObjectList(bucket: string, prefix: string = '') {
   const command = new ListObjectsV2Command({
     Bucket: bucket,
     Prefix: prefix,
@@ -53,7 +53,7 @@ export const getObjectList = async (bucket: string, prefix: string = '') => {
   return filteredS3Objects
 }
 
-export const getObjectDetail = async (bucket: string, key: string) => {
+export async function getObjectDetail(bucket: string, key: string) {
   try {
     const command = new GetObjectCommand({
       Bucket: bucket,
@@ -73,7 +73,7 @@ export const getObjectDetail = async (bucket: string, key: string) => {
   }
 }
 
-const clearS3Bucket = async (bucket: string) => {
+async function clearS3Bucket(bucket: string) {
   const command = new ListObjectsV2Command({
     Bucket: bucket,
   })
@@ -88,7 +88,7 @@ const clearS3Bucket = async (bucket: string) => {
   })
 }
 
-export const deleteBucket = async (bucket: string) => {
+export async function deleteBucket(bucket: string) {
   await clearS3Bucket(bucket)
   // オブジェクトが削除が反映されるまで 500ms 待つ
   await new Promise(resolve => setTimeout(resolve, 500))
@@ -98,7 +98,7 @@ export const deleteBucket = async (bucket: string) => {
   await S3.send(command)
 }
 
-export const deleteObjectByKey = async (bucket: string, key: string) => {
+export async function deleteObjectByKey(bucket: string, key: string) {
   const command = new DeleteObjectCommand({
     Bucket: bucket,
     Key: key,
@@ -106,7 +106,7 @@ export const deleteObjectByKey = async (bucket: string, key: string) => {
   await S3.send(command)
 }
 
-export const uploadObject = async (bucket: string, key: string, file: File) => {
+export async function uploadObject(bucket: string, key: string, file: File) {
   const command = new PutObjectCommand({
     Bucket: bucket,
     Key: key,
@@ -115,7 +115,7 @@ export const uploadObject = async (bucket: string, key: string, file: File) => {
   await S3.send(command)
 }
 
-export const downloadFile = async (bucket: string, key: string) => {
+export async function downloadFile(bucket: string, key: string) {
   const command = new GetObjectCommand({
     Bucket: bucket,
     Key: key,
