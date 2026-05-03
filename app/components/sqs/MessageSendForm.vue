@@ -118,7 +118,7 @@ async function submitSend(event: FormSubmitEvent<SendSqsMessageApiRequest>) {
             class="w-full"
           />
         </UFormField>
-        <div class="flex justify-end gap-2">
+        <div class="mt-3 flex justify-end gap-2">
           <UButton
             type="button"
             color="neutral"
