@@ -115,7 +115,7 @@ async function submitUpload() {
     title="ファイルアップロード"
   >
     <template #body>
-      <p class="mb-3 text-sm text-neutral-500">
+      <p class="mb-3 text-sm">
         アップロード先: {{ bucketName }}/{{ prefix }}
       </p>
       <div
@@ -130,7 +130,7 @@ async function submitUpload() {
           name="i-lucide-upload-cloud"
           class="size-10 text-neutral-400"
         />
-        <p class="text-sm text-neutral-600 dark:text-neutral-300">
+        <p class="text-sm">
           ここにファイルをドラッグ＆ドロップ
         </p>
         <input
@@ -164,7 +164,7 @@ async function submitUpload() {
               class="shrink-0"
             />
             <span class="truncate text-sm">{{ file.name }}</span>
-            <span class="shrink-0 text-xs text-neutral-500">{{ formatSize(file.size) }}</span>
+            <span class="shrink-0 text-xs">{{ formatSize(file.size) }}</span>
           </div>
           <UButton
             icon="i-lucide-x"

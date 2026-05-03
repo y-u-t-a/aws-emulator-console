@@ -32,7 +32,7 @@ defineEmits<{
       v-if="queue"
       class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm"
     >
-      <dt class="text-neutral-500">
+      <dt>
         タイプ
       </dt>
       <dd>
@@ -43,30 +43,30 @@ defineEmits<{
           {{ queue.Type === 'fifo' ? 'FIFO' : 'Standard' }}
         </UBadge>
       </dd>
-      <dt class="text-neutral-500">
+      <dt>
         URL
       </dt>
       <dd class="break-all">
         {{ queue.Url }}
       </dd>
-      <dt class="text-neutral-500">
+      <dt>
         メッセージ数（可視）
       </dt>
       <dd>{{ queue.ApproximateNumberOfMessages }}</dd>
-      <dt class="text-neutral-500">
+      <dt>
         メッセージ数（処理中）
       </dt>
       <dd>{{ queue.ApproximateNumberOfMessagesNotVisible }}</dd>
-      <dt class="text-neutral-500">
+      <dt>
         メッセージ数（遅延中）
       </dt>
       <dd>{{ queue.ApproximateNumberOfMessagesDelayed }}</dd>
-      <dt class="text-neutral-500">
+      <dt>
         可視性タイムアウト
       </dt>
       <dd>{{ queue.VisibilityTimeout }} 秒</dd>
       <template v-if="queue.Type === 'fifo'">
-        <dt class="text-neutral-500">
+        <dt>
           コンテンツベース重複排除
         </dt>
         <dd>{{ queue.ContentBasedDeduplication ? '有効' : '無効' }}</dd>

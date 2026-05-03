@@ -55,6 +55,6 @@ async function receive() {
       :max="10"
       class="w-24"
     />
-    <span class="text-sm text-neutral-500">件まで</span>
+    <span class="text-sm">件まで</span>
   </div>
 </template>

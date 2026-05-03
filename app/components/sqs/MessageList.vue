@@ -43,7 +43,7 @@ async function deleteOne(message: SqsMessage) {
     </h2>
     <p
       v-if="messages.length === 0"
-      class="text-sm text-neutral-500"
+      class="text-sm"
     >
       「メッセージ受信」を押すと、ここに最大10件まで表示されます。受信後は可視性タイムアウト中、他のクライアントから見えなくなります。
     </p>
@@ -57,7 +57,7 @@ async function deleteOne(message: SqsMessage) {
         class="border border-neutral-200 dark:border-neutral-800 rounded-md p-3"
       >
         <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-          <div class="flex flex-wrap gap-3 text-xs text-neutral-500">
+          <div class="flex flex-wrap gap-3 text-xs">
             <span>MessageId: {{ message.MessageId }}</span>
             <span v-if="message.SentTimestamp">送信日時: {{ formatDateTime(new Date(Number(message.SentTimestamp))) }}</span>
             <span v-if="message.ApproximateReceiveCount">受信回数: {{ message.ApproximateReceiveCount }}</span>
