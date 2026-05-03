@@ -3,6 +3,7 @@ import {
   ListQueuesCommand,
   CreateQueueCommand,
   DeleteQueueCommand,
+  PurgeQueueCommand,
   GetQueueUrlCommand,
   GetQueueAttributesCommand,
   SendMessageCommand,
@@ -76,6 +77,12 @@ export async function createQueue(name: string, fifo: boolean, contentBasedDedup
 export async function deleteQueue(queueName: string) {
   const url = await resolveQueueUrl(queueName)
   const command = new DeleteQueueCommand({ QueueUrl: url })
+  await SQS.send(command)
+}
+
+export async function purgeQueue(queueName: string) {
+  const url = await resolveQueueUrl(queueName)
+  const command = new PurgeQueueCommand({ QueueUrl: url })
   await SQS.send(command)
 }
 

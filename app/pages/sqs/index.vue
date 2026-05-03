@@ -18,6 +18,10 @@ const selected = shallowRef<SqsQueue[]>([])
         再読み込み
       </UButton>
       <SqsQueueCreateForm @created="refresh()" />
+      <SqsQueuePurgeButton
+        :queues="selected"
+        @purged="refresh()"
+      />
       <SqsQueueDeleteButton
         :queues="selected"
         @deleted="selected = []; refresh()"

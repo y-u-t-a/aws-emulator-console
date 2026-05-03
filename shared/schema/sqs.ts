@@ -31,6 +31,13 @@ export const deleteSqsQueuesApiRequestSchema = v.object({
   ),
 })
 
+export const purgeSqsQueuesApiRequestSchema = v.object({
+  names: v.pipe(
+    v.array(v.pipe(v.string(), v.trim(), v.minLength(1))),
+    v.minLength(1, 'クリアするキュー名を指定してください'),
+  ),
+})
+
 export const sendSqsMessageApiRequestSchema = v.object({
   body: v.pipe(
     v.string(),
