@@ -23,3 +23,26 @@ export const createSqsQueueApiRequestSchema = v.pipe(
     ['name'],
   ),
 )
+
+export const sendSqsMessageApiRequestSchema = v.object({
+  body: v.pipe(
+    v.string(),
+    v.minLength(1, 'メッセージ本文を入力してください'),
+    v.maxLength(262144, 'メッセージ本文は256KB以内にしてください'),
+  ),
+  messageGroupId: v.optional(v.pipe(v.string(), v.trim())),
+  messageDeduplicationId: v.optional(v.pipe(v.string(), v.trim())),
+})
+
+export const receiveSqsMessagesApiRequestSchema = v.object({
+  maxNumberOfMessages: v.pipe(
+    v.number(),
+    v.integer(),
+    v.minValue(1),
+    v.maxValue(10),
+  ),
+})
+
+export const deleteSqsMessageApiRequestSchema = v.object({
+  receiptHandle: v.pipe(v.string(), v.minLength(1, 'ReceiptHandle が必要です')),
+})

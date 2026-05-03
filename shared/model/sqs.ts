@@ -1,5 +1,10 @@
 import type * as v from 'valibot'
-import type { createSqsQueueApiRequestSchema } from '#shared/schema/sqs'
+import type {
+  createSqsQueueApiRequestSchema,
+  sendSqsMessageApiRequestSchema,
+  receiveSqsMessagesApiRequestSchema,
+  deleteSqsMessageApiRequestSchema,
+} from '#shared/schema/sqs'
 
 export type SqsQueue = {
   Name: string
@@ -7,4 +12,23 @@ export type SqsQueue = {
   Type: 'standard' | 'fifo'
 }
 
+export type SqsQueueDetail = SqsQueue & {
+  ContentBasedDeduplication: boolean
+  ApproximateNumberOfMessages: number
+  ApproximateNumberOfMessagesNotVisible: number
+  VisibilityTimeout: number
+}
+
+export type SqsMessage = {
+  MessageId: string
+  ReceiptHandle: string
+  Body: string
+  SentTimestamp?: string
+  ApproximateReceiveCount?: string
+  MessageGroupId?: string
+}
+
 export type CreateSqsQueueApiRequest = v.InferInput<typeof createSqsQueueApiRequestSchema>
+export type SendSqsMessageApiRequest = v.InferInput<typeof sendSqsMessageApiRequestSchema>
+export type ReceiveSqsMessagesApiRequest = v.InferInput<typeof receiveSqsMessagesApiRequestSchema>
+export type DeleteSqsMessageApiRequest = v.InferInput<typeof deleteSqsMessageApiRequestSchema>

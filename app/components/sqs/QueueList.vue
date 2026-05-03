@@ -21,6 +21,11 @@ const columns: TableColumn<SqsQueue>[] = [
     :loading="loading"
     :empty-state="{ icon: 'i-lucide-inbox', label: 'キューがありません' }"
   >
+    <template #Name-cell="{ row }">
+      <RouterLink :to="{ name: 'sqs-queueName', params: { queueName: row.original.Name } }">
+        {{ row.original.Name }}
+      </RouterLink>
+    </template>
     <template #Type-cell="{ row }">
       <UBadge
         :color="row.original.Type === 'fifo' ? 'primary' : 'neutral'"
