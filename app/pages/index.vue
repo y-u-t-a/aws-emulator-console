@@ -3,5 +3,8 @@
     <NuxtLink to="/s3">
       <UPageCard title="S3" />
     </NuxtLink>
+    <NuxtLink to="/sqs">
+      <UPageCard title="SQS" />
+    </NuxtLink>
   </div>
 </template>

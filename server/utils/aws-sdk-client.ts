@@ -1,7 +1,7 @@
-import type { S3ClientConfig } from '@aws-sdk/client-s3'
 import { S3Client } from '@aws-sdk/client-s3'
+import { SQSClient } from '@aws-sdk/client-sqs'
 
-const mockConfig: S3ClientConfig = {
+const mockConfig = {
   endpoint: 'http://localhost:4566',
   region: 'us-east-1',
   credentials: {
@@ -9,7 +9,8 @@ const mockConfig: S3ClientConfig = {
     secretAccessKey: 'dummy',
     sessionToken: 'dummy',
   },
-  forcePathStyle: true,
 }
 
-export const S3 = new S3Client(mockConfig)
+export const S3 = new S3Client({ ...mockConfig, forcePathStyle: true })
+
+export const SQS = new SQSClient(mockConfig)
