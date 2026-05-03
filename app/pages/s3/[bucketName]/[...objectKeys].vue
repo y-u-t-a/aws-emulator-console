@@ -41,7 +41,7 @@ const bread = computed<BreadcrumbItem[]>(() => [
   })),
 ])
 
-const { data: objects, status, error, refresh } = await useFetch(
+const { data: objects, status, error, refresh } = await useFetch<S3Object[]>(
   () => prefix.value === ''
     ? `/api/s3/${route.params.bucketName}/objects`
     : `/api/s3/${route.params.bucketName}/objects/${prefix.value}`,

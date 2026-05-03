@@ -27,7 +27,7 @@ export async function getBucketList() {
   return s3Buckets
 }
 
-export async function getObjectList(bucket: string, prefix: string = '') {
+export async function getObjectList(bucket: string, prefix: string = ''): Promise<S3Object[]> {
   const filterPrefix = !prefix || prefix.endsWith('/') ? prefix : `${prefix}/`
   const folders: S3Object[] = []
   const files: S3Object[] = []
