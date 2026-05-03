@@ -12,5 +12,15 @@ export default defineAppConfig({
         base: 'disabled:opacity-40',
       },
     },
+    table: {
+      slots: {
+        td: 'text-default',
+      },
+    },
+    checkbox: {
+      slots: {
+        base: 'ring-neutral',
+      },
+    },
   },
 })
