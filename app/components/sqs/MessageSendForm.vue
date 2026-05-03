@@ -78,6 +78,7 @@ async function submitSend(event: FormSubmitEvent<SendSqsMessageApiRequest>) {
         ref="form"
         :schema="sendSqsMessageApiRequestSchema"
         :state="state"
+        class="flex flex-col gap-3"
         @submit="submitSend"
       >
         <UFormField
@@ -118,7 +119,7 @@ async function submitSend(event: FormSubmitEvent<SendSqsMessageApiRequest>) {
             class="w-full"
           />
         </UFormField>
-        <div class="mt-3 flex justify-end gap-2">
+        <div class="flex justify-end gap-2">
           <UButton
             type="button"
             color="neutral"

@@ -70,6 +70,7 @@ async function submitCreate(event: FormSubmitEvent<CreateSqsQueueApiRequest>) {
         ref="form"
         :schema="createSqsQueueApiRequestSchema"
         :state="state"
+        class="flex flex-col gap-3"
         @submit="submitCreate"
       >
         <UFormField
