@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import type { SqsQueue } from '~~/shared/model/sqs'
+
 const { data: queues, status, error, refresh } = await useFetch('/api/sqs/queues')
+const selected = shallowRef<SqsQueue[]>([])
 </script>
 
 <template>
@@ -10,11 +13,15 @@ const { data: queues, status, error, refresh } = await useFetch('/api/sqs/queues
         color="neutral"
         variant="outline"
         :loading="status === 'pending'"
-        @click="refresh()"
+        @click="selected = []; refresh()"
       >
         再読み込み
       </UButton>
       <SqsQueueCreateForm @created="refresh()" />
+      <SqsQueueDeleteButton
+        :queues="selected"
+        @deleted="selected = []; refresh()"
+      />
     </div>
     <UAlert
       v-if="error"
@@ -26,6 +33,7 @@ const { data: queues, status, error, refresh } = await useFetch('/api/sqs/queues
     />
     <SqsQueueList
       v-else
+      v-model:selected="selected"
       :queues="queues ?? []"
       :loading="status === 'pending'"
     />

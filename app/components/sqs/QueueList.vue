@@ -2,12 +2,17 @@
 import type { TableColumn } from '@nuxt/ui'
 import type { SqsQueue } from '~~/shared/model/sqs'
 
-defineProps<{
+const props = defineProps<{
   queues: SqsQueue[]
   loading: boolean
 }>()
 
+const selected = defineModel<SqsQueue[]>('selected', { default: () => [] })
+
+const { rowSelection } = useTableSelection(() => props.queues, item => item.Name, selected)
+
 const columns: TableColumn<SqsQueue>[] = [
+  createSelectColumn<SqsQueue>(),
   { accessorKey: 'Name', header: 'キュー名' },
   { accessorKey: 'Type', header: 'タイプ' },
   { accessorKey: 'Url', header: 'URL' },
@@ -16,6 +21,7 @@ const columns: TableColumn<SqsQueue>[] = [
 
 <template>
   <UTable
+    v-model:row-selection="rowSelection"
     :data="queues ?? []"
     :columns="columns"
     :loading="loading"

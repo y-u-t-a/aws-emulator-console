@@ -2,6 +2,7 @@ import { SQS } from './aws-sdk-client'
 import {
   ListQueuesCommand,
   CreateQueueCommand,
+  DeleteQueueCommand,
   GetQueueUrlCommand,
   GetQueueAttributesCommand,
   SendMessageCommand,
@@ -59,6 +60,12 @@ export async function createQueue(name: string, fifo: boolean, contentBasedDedup
     QueueName: name,
     Attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
   })
+  await SQS.send(command)
+}
+
+export async function deleteQueue(queueName: string) {
+  const url = await resolveQueueUrl(queueName)
+  const command = new DeleteQueueCommand({ QueueUrl: url })
   await SQS.send(command)
 }
 
