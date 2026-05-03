@@ -17,16 +17,24 @@ defineEmits<{
       <h2 class="text-lg font-semibold">
         キュー情報
       </h2>
-      <UButton
-        icon="i-lucide-refresh-cw"
-        color="neutral"
-        variant="outline"
-        size="sm"
-        :loading="loading"
-        @click="$emit('refresh')"
-      >
-        再読み込み
-      </UButton>
+      <div class="flex gap-2">
+        <SqsQueueEditForm
+          v-if="queue"
+          :queue-name="queue.Name"
+          :visibility-timeout="queue.VisibilityTimeout"
+          @updated="$emit('refresh')"
+        />
+        <UButton
+          icon="i-lucide-refresh-cw"
+          color="neutral"
+          variant="outline"
+          size="sm"
+          :loading="loading"
+          @click="$emit('refresh')"
+        >
+          再読み込み
+        </UButton>
+      </div>
     </div>
     <dl
       v-if="queue"

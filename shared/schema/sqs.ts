@@ -3,6 +3,13 @@ import * as v from 'valibot'
 const queueNamePattern = /^[a-zA-Z0-9_-]{1,80}$/
 const fifoQueueNamePattern = /^[a-zA-Z0-9_-]{1,75}\.fifo$/
 
+const visibilityTimeoutSchema = v.pipe(
+  v.number(),
+  v.integer('可視性タイムアウトは整数で指定してください'),
+  v.minValue(0, '可視性タイムアウトは0秒以上で指定してください'),
+  v.maxValue(43200, '可視性タイムアウトは43200秒（12時間）以内で指定してください'),
+)
+
 export const createSqsQueueApiRequestSchema = v.pipe(
   v.object({
     name: v.pipe(
@@ -13,6 +20,7 @@ export const createSqsQueueApiRequestSchema = v.pipe(
     ),
     fifo: v.boolean(),
     contentBasedDeduplication: v.optional(v.boolean()),
+    visibilityTimeout: visibilityTimeoutSchema,
   }),
   v.forward(
     v.partialCheck(
@@ -23,6 +31,10 @@ export const createSqsQueueApiRequestSchema = v.pipe(
     ['name'],
   ),
 )
+
+export const updateSqsQueueApiRequestSchema = v.object({
+  visibilityTimeout: visibilityTimeoutSchema,
+})
 
 export const deleteSqsQueuesApiRequestSchema = v.object({
   names: v.pipe(

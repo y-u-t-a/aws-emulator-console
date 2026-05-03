@@ -1,6 +1,7 @@
 import type * as v from 'valibot'
 import type {
   createSqsQueueApiRequestSchema,
+  updateSqsQueueApiRequestSchema,
   deleteSqsQueuesApiRequestSchema,
   purgeSqsQueuesApiRequestSchema,
   sendSqsMessageApiRequestSchema,
@@ -32,6 +33,7 @@ export type SqsMessage = {
 }
 
 export type CreateSqsQueueApiRequest = v.InferInput<typeof createSqsQueueApiRequestSchema>
+export type UpdateSqsQueueApiRequest = v.InferInput<typeof updateSqsQueueApiRequestSchema>
 export type DeleteSqsQueuesApiRequest = v.InferInput<typeof deleteSqsQueuesApiRequestSchema>
 export type PurgeSqsQueuesApiRequest = v.InferInput<typeof purgeSqsQueuesApiRequestSchema>
 export type SendSqsMessageApiRequest = v.InferInput<typeof sendSqsMessageApiRequestSchema>

@@ -9,11 +9,14 @@ const emits = defineEmits<{
 
 const toast = useToast()
 
+const DEFAULT_VISIBILITY_TIMEOUT = 30
+
 const isOpen = ref(false)
 const state = reactive<CreateSqsQueueApiRequest>({
   name: '',
   fifo: false,
   contentBasedDeduplication: false,
+  visibilityTimeout: DEFAULT_VISIBILITY_TIMEOUT,
 })
 const submitting = ref(false)
 const formRef = useTemplateRef<Form<CreateSqsQueueApiRequest>>('form')
@@ -23,11 +26,12 @@ function openCreateForm() {
   state.name = ''
   state.fifo = false
   state.contentBasedDeduplication = false
+  state.visibilityTimeout = DEFAULT_VISIBILITY_TIMEOUT
   isOpen.value = true
 }
 
 async function submitCreate(event: FormSubmitEvent<CreateSqsQueueApiRequest>) {
-  const { name, fifo, contentBasedDeduplication } = event.data
+  const { name, fifo, contentBasedDeduplication, visibilityTimeout } = event.data
   submitting.value = true
   try {
     await $fetch('/api/sqs/queues', {
@@ -36,6 +40,7 @@ async function submitCreate(event: FormSubmitEvent<CreateSqsQueueApiRequest>) {
         name,
         fifo,
         contentBasedDeduplication: fifo ? contentBasedDeduplication : false,
+        visibilityTimeout,
       } satisfies CreateSqsQueueApiRequest,
     })
     toast.add({ title: 'キューを作成しました', description: name, color: 'success' })
@@ -107,6 +112,20 @@ async function submitCreate(event: FormSubmitEvent<CreateSqsQueueApiRequest>) {
             v-model="state.contentBasedDeduplication"
             label="メッセージ本文から重複排除IDを生成する"
           />
+        </UFormField>
+        <UFormField
+          label="可視性タイムアウト"
+          name="visibilityTimeout"
+          help="0〜43200秒（12時間）"
+          required
+        >
+          <UInputNumber
+            v-model="state.visibilityTimeout"
+            :min="0"
+            :max="43200"
+            class="w-32"
+          />
+          <span class="ml-2 text-sm">秒</span>
         </UFormField>
         <div class="flex justify-end gap-2">
           <UButton

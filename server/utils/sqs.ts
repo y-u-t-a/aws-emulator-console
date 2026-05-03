@@ -6,6 +6,7 @@ import {
   PurgeQueueCommand,
   GetQueueUrlCommand,
   GetQueueAttributesCommand,
+  SetQueueAttributesCommand,
   SendMessageCommand,
   ReceiveMessageCommand,
   DeleteMessageCommand,
@@ -59,8 +60,15 @@ export async function getQueueList(): Promise<SqsQueue[]> {
   }))
 }
 
-export async function createQueue(name: string, fifo: boolean, contentBasedDeduplication: boolean) {
-  const attributes: Record<string, string> = {}
+export async function createQueue(
+  name: string,
+  fifo: boolean,
+  contentBasedDeduplication: boolean,
+  visibilityTimeout: number,
+) {
+  const attributes: Record<string, string> = {
+    VisibilityTimeout: String(visibilityTimeout),
+  }
   if (fifo) {
     attributes.FifoQueue = 'true'
     if (contentBasedDeduplication) {
@@ -69,7 +77,18 @@ export async function createQueue(name: string, fifo: boolean, contentBasedDedup
   }
   const command = new CreateQueueCommand({
     QueueName: name,
-    Attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
+    Attributes: attributes,
+  })
+  await SQS.send(command)
+}
+
+export async function updateQueueAttributes(queueName: string, visibilityTimeout: number) {
+  const url = await resolveQueueUrl(queueName)
+  const command = new SetQueueAttributesCommand({
+    QueueUrl: url,
+    Attributes: {
+      VisibilityTimeout: String(visibilityTimeout),
+    },
   })
   await SQS.send(command)
 }

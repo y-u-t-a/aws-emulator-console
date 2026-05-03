@@ -12,10 +12,10 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const { name, fifo, contentBasedDeduplication } = result.output
+  const { name, fifo, contentBasedDeduplication, visibilityTimeout } = result.output
 
   try {
-    await createQueue(name, fifo, contentBasedDeduplication ?? false)
+    await createQueue(name, fifo, contentBasedDeduplication ?? false, visibilityTimeout)
   } catch (e) {
     if (e instanceof Error && e.name === 'QueueNameExists') {
       throw createError({
