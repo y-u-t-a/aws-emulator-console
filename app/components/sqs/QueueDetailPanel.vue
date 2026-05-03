@@ -58,6 +58,10 @@ defineEmits<{
       </dt>
       <dd>{{ queue.ApproximateNumberOfMessagesNotVisible }}</dd>
       <dt class="text-neutral-500">
+        メッセージ数（遅延中）
+      </dt>
+      <dd>{{ queue.ApproximateNumberOfMessagesDelayed }}</dd>
+      <dt class="text-neutral-500">
         可視性タイムアウト
       </dt>
       <dd>{{ queue.VisibilityTimeout }} 秒</dd>

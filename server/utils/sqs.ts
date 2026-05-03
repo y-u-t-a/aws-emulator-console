@@ -23,7 +23,7 @@ async function resolveQueueUrl(queueName: string): Promise<string> {
 }
 
 export async function getQueueList(): Promise<SqsQueue[]> {
-  const queues: SqsQueue[] = []
+  const urls: string[] = []
   let nextToken: string | undefined = undefined
 
   do {
@@ -32,20 +32,30 @@ export async function getQueueList(): Promise<SqsQueue[]> {
       NextToken: nextToken,
     })
     const response = await SQS.send(command)
-
-    for (const url of response.QueueUrls ?? []) {
-      const name = extractQueueNameFromUrl(url)
-      queues.push({
-        Name: name,
-        Url: url,
-        Type: name.endsWith('.fifo') ? 'fifo' : 'standard',
-      })
-    }
-
+    urls.push(...(response.QueueUrls ?? []))
     nextToken = response.NextToken
   } while (nextToken)
 
-  return queues
+  return await Promise.all(urls.map(async (url) => {
+    const name = extractQueueNameFromUrl(url)
+    const attributesCommand = new GetQueueAttributesCommand({
+      QueueUrl: url,
+      AttributeNames: [
+        'ApproximateNumberOfMessages',
+        'ApproximateNumberOfMessagesNotVisible',
+        'ApproximateNumberOfMessagesDelayed',
+      ],
+    })
+    const attributes = (await SQS.send(attributesCommand)).Attributes ?? {}
+    return {
+      Name: name,
+      Url: url,
+      Type: name.endsWith('.fifo') ? 'fifo' : 'standard',
+      ApproximateNumberOfMessages: Number(attributes.ApproximateNumberOfMessages ?? 0),
+      ApproximateNumberOfMessagesNotVisible: Number(attributes.ApproximateNumberOfMessagesNotVisible ?? 0),
+      ApproximateNumberOfMessagesDelayed: Number(attributes.ApproximateNumberOfMessagesDelayed ?? 0),
+    }
+  }))
 }
 
 export async function createQueue(name: string, fifo: boolean, contentBasedDeduplication: boolean) {
@@ -84,6 +94,7 @@ export async function getQueueDetail(queueName: string): Promise<SqsQueueDetail>
     ContentBasedDeduplication: attributes.ContentBasedDeduplication === 'true',
     ApproximateNumberOfMessages: Number(attributes.ApproximateNumberOfMessages ?? 0),
     ApproximateNumberOfMessagesNotVisible: Number(attributes.ApproximateNumberOfMessagesNotVisible ?? 0),
+    ApproximateNumberOfMessagesDelayed: Number(attributes.ApproximateNumberOfMessagesDelayed ?? 0),
     VisibilityTimeout: Number(attributes.VisibilityTimeout ?? 0),
   }
 }

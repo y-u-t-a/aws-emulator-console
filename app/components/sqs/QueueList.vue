@@ -15,6 +15,9 @@ const columns: TableColumn<SqsQueue>[] = [
   createSelectColumn<SqsQueue>(),
   { accessorKey: 'Name', header: 'キュー名' },
   { accessorKey: 'Type', header: 'タイプ' },
+  { accessorKey: 'ApproximateNumberOfMessages', header: 'メッセージ数' },
+  { accessorKey: 'ApproximateNumberOfMessagesNotVisible', header: '処理中' },
+  { accessorKey: 'ApproximateNumberOfMessagesDelayed', header: '遅延中' },
   { accessorKey: 'Url', header: 'URL' },
 ]
 </script>

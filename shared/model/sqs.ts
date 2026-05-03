@@ -11,12 +11,13 @@ export type SqsQueue = {
   Name: string
   Url: string
   Type: 'standard' | 'fifo'
+  ApproximateNumberOfMessages: number
+  ApproximateNumberOfMessagesNotVisible: number
+  ApproximateNumberOfMessagesDelayed: number
 }
 
 export type SqsQueueDetail = SqsQueue & {
   ContentBasedDeduplication: boolean
-  ApproximateNumberOfMessages: number
-  ApproximateNumberOfMessagesNotVisible: number
   VisibilityTimeout: number
 }
 
