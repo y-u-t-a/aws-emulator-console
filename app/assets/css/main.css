@@ -3,6 +3,7 @@
 
 :root {
   --ui-text: var(--ui-color-neutral-900);
+  --ui-warning: var(--ui-color-warning-600);
 }
 
 .dark {
