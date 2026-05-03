@@ -1,4 +1,6 @@
-<script setup>
+<script setup lang="ts">
+import type { NavigationMenuItem } from '@nuxt/ui'
+
 useHead({
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -16,15 +18,27 @@ useSeoMeta({
   ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
   twitterCard: 'summary_large_image',
 })
+
+const serviceItems: NavigationMenuItem[] = [
+  { label: 'S3', to: '/s3' },
+  { label: 'SQS', to: '/sqs' },
+]
 </script>
 
 <template>
   <UApp>
-    <UHeader>
+    <UHeader
+      mode="slideover"
+      :ui="{ left: 'lg:flex-none', right: 'lg:flex-none', center: 'mr-auto' }"
+    >
       <template #left>
         <RouterLink to="/">
           AWS Emulator
         </RouterLink>
+      </template>
+
+      <template #default>
+        <UNavigationMenu :items="serviceItems" />
       </template>
 
       <template #right>
@@ -36,6 +50,13 @@ useSeoMeta({
           aria-label="GitHub"
           color="neutral"
           variant="ghost"
+        />
+      </template>
+
+      <template #body>
+        <UNavigationMenu
+          :items="serviceItems"
+          orientation="vertical"
         />
       </template>
     </UHeader>
