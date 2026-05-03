@@ -18,7 +18,13 @@ const columns: TableColumn<S3Object>[] = [
   { accessorKey: 'DisplayObjectName', header: 'オブジェクト名' },
   { accessorKey: 'Size', header: 'サイズ' },
   { accessorKey: 'LastModified', header: '最終更新日時' },
+  { id: 'actions' },
 ]
+
+const downloadUrl = (object: S3Object) => {
+  const encodedKey = object.Key.split('/').map(encodeURIComponent).join('/')
+  return `/api/s3/${encodeURIComponent(object.Bucket)}/objects/download/${encodedKey}`
+}
 </script>
 
 <template>
@@ -54,6 +60,19 @@ const columns: TableColumn<S3Object>[] = [
     </template>
     <template #Size-cell="{ row }">
       {{ row.original.Type === 'folder' ? '' : formatSize(row.original.Size) }}
+    </template>
+    <template #actions-cell="{ row }">
+      <UButton
+        v-if="row.original.Type === 'file'"
+        :to="downloadUrl(row.original)"
+        external
+        download
+        icon="i-lucide-download"
+        color="neutral"
+        variant="ghost"
+        size="xs"
+        aria-label="ダウンロード"
+      />
     </template>
   </UTable>
 </template>

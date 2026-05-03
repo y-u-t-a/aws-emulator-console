@@ -174,11 +174,15 @@ export async function uploadObject(bucket: string, key: string, body: Uint8Array
   await S3.send(command)
 }
 
-export async function downloadFile(bucket: string, key: string) {
+export async function downloadObject(bucket: string, key: string) {
   const command = new GetObjectCommand({
     Bucket: bucket,
     Key: key,
   })
   const response = await S3.send(command)
-  return response.Body!
+  return {
+    body: response.Body!.transformToWebStream(),
+    contentType: response.ContentType,
+    contentLength: response.ContentLength,
+  }
 }
