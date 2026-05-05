@@ -18,11 +18,10 @@ const activeTab = ref<Tab>('scan')
 </script>
 
 <template>
-  <div class="mt-6">
+  <div>
     <UTabs
       v-model="activeTab"
       :items="[{ label: 'Scan', value: 'scan' }, { label: 'Query', value: 'query' }]"
-      class="mb-4"
     />
     <DynamodbItemScanPanel
       v-if="activeTab === 'scan'"

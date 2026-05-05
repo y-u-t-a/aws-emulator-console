@@ -63,7 +63,7 @@ const serviceItems: NavigationMenuItem[] = [
     </UHeader>
 
     <UMain>
-      <UContainer class="pt-4">
+      <UContainer class="py-4">
         <NuxtPage />
       </UContainer>
     </UMain>
