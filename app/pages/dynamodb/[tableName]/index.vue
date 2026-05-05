@@ -16,11 +16,8 @@ const bread = computed<BreadcrumbItem[]>(() => [
 </script>
 
 <template>
-  <div>
-    <UBreadcrumb
-      :items="bread"
-      class="mb-3"
-    />
+  <div class="flex flex-col gap-3">
+    <UBreadcrumb :items="bread" />
     <UAlert
       v-if="error"
       color="error"
@@ -35,6 +32,15 @@ const bread = computed<BreadcrumbItem[]>(() => [
         :loading="status === 'pending'"
         @refresh="refresh()"
       />
+      <div class="flex gap-3">
+        <UButton
+          icon="i-lucide-plus"
+          color="primary"
+          :to="{ name: 'dynamodb-tableName-items-new', params: { tableName } }"
+        >
+          アイテム作成
+        </UButton>
+      </div>
       <DynamodbItemSearchPanel
         :table-name="tableName"
         :table="table ?? null"

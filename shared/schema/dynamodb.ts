@@ -19,6 +19,14 @@ export const queryDynamoDbItemsApiRequestSchema = v.object({
   limit: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(1000)),
 })
 
+export const putDynamoDbItemApiRequestSchema = v.object({
+  fields: v.array(v.object({
+    key: v.pipe(v.string(), v.trim(), v.minLength(1, 'キー名を入力してください')),
+    type: v.picklist(['S', 'N', 'BOOL', 'NULL']),
+    value: v.string(),
+  })),
+})
+
 export const createDynamoDbTableApiRequestSchema = v.object({
   name: v.pipe(
     v.string(),

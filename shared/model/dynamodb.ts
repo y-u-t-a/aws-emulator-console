@@ -5,12 +5,14 @@ import type {
   deleteDynamoDbTablesApiRequestSchema,
   scanDynamoDbItemsApiRequestSchema,
   queryDynamoDbItemsApiRequestSchema,
+  putDynamoDbItemApiRequestSchema,
 } from '#shared/schema/dynamodb'
 
 export type CreateDynamoDbTableApiRequest = v.InferInput<typeof createDynamoDbTableApiRequestSchema>
 export type DeleteDynamoDbTablesApiRequest = v.InferInput<typeof deleteDynamoDbTablesApiRequestSchema>
 export type ScanDynamoDbItemsApiRequest = v.InferInput<typeof scanDynamoDbItemsApiRequestSchema>
 export type QueryDynamoDbItemsApiRequest = v.InferInput<typeof queryDynamoDbItemsApiRequestSchema>
+export type PutDynamoDbItemApiRequest = v.InferInput<typeof putDynamoDbItemApiRequestSchema>
 
 export type DynamoDbTable = {
   Name: string

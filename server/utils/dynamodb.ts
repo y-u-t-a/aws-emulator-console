@@ -1,6 +1,6 @@
-import { ListTablesCommand, DescribeTableCommand, CreateTableCommand, DeleteTableCommand, ScanCommand, QueryCommand } from '@aws-sdk/client-dynamodb'
+import { ListTablesCommand, DescribeTableCommand, CreateTableCommand, DeleteTableCommand, ScanCommand, QueryCommand, PutItemCommand } from '@aws-sdk/client-dynamodb'
 import type { AttributeValue } from '@aws-sdk/client-dynamodb'
-import type { CreateDynamoDbTableApiRequest, DynamoDbTable, DynamoDbTableDetail, DynamoDbItem, ScanDynamoDbItemsApiRequest, QueryDynamoDbItemsApiRequest } from '#shared/model/dynamodb'
+import type { CreateDynamoDbTableApiRequest, DynamoDbTable, DynamoDbTableDetail, DynamoDbItem, ScanDynamoDbItemsApiRequest, QueryDynamoDbItemsApiRequest, PutDynamoDbItemApiRequest } from '#shared/model/dynamodb'
 import { DynamoDB } from '#server/utils/aws-sdk-client'
 
 function toItem(record: Record<string, AttributeValue>): DynamoDbItem {
@@ -88,6 +88,17 @@ export async function queryItems(tableName: string, { partitionKeyName, partitio
     Limit: limit,
   }))
   return Items.map(toItem)
+}
+
+export async function putItem(tableName: string, { fields }: PutDynamoDbItemApiRequest): Promise<void> {
+  const item: Record<string, AttributeValue> = {}
+  for (const { key, type, value } of fields) {
+    if (type === 'S') item[key] = { S: value }
+    else if (type === 'N') item[key] = { N: value }
+    else if (type === 'BOOL') item[key] = { BOOL: value === 'true' }
+    else if (type === 'NULL') item[key] = { NULL: true }
+  }
+  await DynamoDB.send(new PutItemCommand({ TableName: tableName, Item: item }))
 }
 
 export async function getTableDetail(name: string): Promise<DynamoDbTableDetail> {
