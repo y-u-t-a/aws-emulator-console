@@ -1,6 +1,6 @@
-import { ListTablesCommand, DescribeTableCommand } from '@aws-sdk/client-dynamodb'
+import { ListTablesCommand, DescribeTableCommand, CreateTableCommand, DeleteTableCommand } from '@aws-sdk/client-dynamodb'
+import type { CreateDynamoDbTableApiRequest, DynamoDbTable } from '#shared/model/dynamodb'
 import { DynamoDB } from '#server/utils/aws-sdk-client'
-import type { DynamoDbTable } from '#shared/model/dynamodb'
 
 export async function getTableList(): Promise<DynamoDbTable[]> {
   const { TableNames = [] } = await DynamoDB.send(new ListTablesCommand({}))
@@ -22,4 +22,27 @@ export async function getTableList(): Promise<DynamoDbTable[]> {
   )
 
   return tables
+}
+
+export async function createTable({ name, partitionKey, partitionKeyType, sortKey, sortKeyType }: CreateDynamoDbTableApiRequest): Promise<void> {
+  const attributeDefinitions = [
+    { AttributeName: partitionKey, AttributeType: partitionKeyType },
+    ...(sortKey && sortKeyType ? [{ AttributeName: sortKey, AttributeType: sortKeyType }] : []),
+  ]
+
+  const keySchema = [
+    { AttributeName: partitionKey, KeyType: 'HASH' as const },
+    ...(sortKey ? [{ AttributeName: sortKey, KeyType: 'RANGE' as const }] : []),
+  ]
+
+  await DynamoDB.send(new CreateTableCommand({
+    TableName: name,
+    AttributeDefinitions: attributeDefinitions,
+    KeySchema: keySchema,
+    BillingMode: 'PAY_PER_REQUEST',
+  }))
+}
+
+export async function deleteTable(name: string): Promise<void> {
+  await DynamoDB.send(new DeleteTableCommand({ TableName: name }))
 }

@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import type { DynamoDbTable } from '~~/shared/model/dynamodb'
+
 const { data: tables, status, error, refresh } = await useFetch('/api/dynamodb/tables')
+const selected = shallowRef<DynamoDbTable[]>([])
 </script>
 
 <template>
@@ -10,10 +13,15 @@ const { data: tables, status, error, refresh } = await useFetch('/api/dynamodb/t
         color="neutral"
         variant="outline"
         :loading="status === 'pending'"
-        @click="refresh()"
+        @click="selected = []; refresh()"
       >
         再読み込み
       </UButton>
+      <DynamodbTableCreateForm @created="refresh()" />
+      <DynamodbTableDeleteButton
+        :tables="selected"
+        @deleted="selected = []; refresh()"
+      />
     </div>
     <UAlert
       v-if="error"
@@ -25,6 +33,7 @@ const { data: tables, status, error, refresh } = await useFetch('/api/dynamodb/t
     />
     <DynamodbTableList
       v-else
+      v-model:selected="selected"
       :tables="tables ?? []"
       :loading="status === 'pending'"
     />

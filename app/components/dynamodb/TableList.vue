@@ -2,12 +2,17 @@
 import type { TableColumn } from '@nuxt/ui'
 import type { DynamoDbTable } from '~~/shared/model/dynamodb'
 
-defineProps<{
+const props = defineProps<{
   tables: DynamoDbTable[]
   loading: boolean
 }>()
 
+const selected = defineModel<DynamoDbTable[]>('selected', { default: () => [] })
+
+const { rowSelection } = useTableSelection(() => props.tables, item => item.Name, selected)
+
 const columns: TableColumn<DynamoDbTable>[] = [
+  createSelectColumn<DynamoDbTable>(),
   { accessorKey: 'Name', header: 'テーブル名' },
   { accessorKey: 'Status', header: 'ステータス' },
   { accessorKey: 'ItemCount', header: 'アイテム数' },
@@ -18,6 +23,7 @@ const columns: TableColumn<DynamoDbTable>[] = [
 
 <template>
   <UTable
+    v-model:row-selection="rowSelection"
     :data="tables"
     :columns="columns"
     :loading="loading"
