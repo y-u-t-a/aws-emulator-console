@@ -22,6 +22,7 @@ useSeoMeta({
 const serviceItems: NavigationMenuItem[] = [
   { label: 'S3', to: '/s3' },
   { label: 'SQS', to: '/sqs' },
+  { label: 'DynamoDB', to: '/dynamodb' },
 ]
 </script>
 

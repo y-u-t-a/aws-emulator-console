@@ -6,5 +6,8 @@
     <NuxtLink to="/sqs">
       <UPageCard title="SQS" />
     </NuxtLink>
+    <NuxtLink to="/dynamodb">
+      <UPageCard title="DynamoDB" />
+    </NuxtLink>
   </div>
 </template>
