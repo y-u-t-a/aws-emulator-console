@@ -12,6 +12,7 @@ const partitionKeyName = computed(() =>
 const sortKeyName = computed(() =>
   props.table?.KeySchema.find(k => k.KeyType === 'RANGE')?.AttributeName,
 )
+const keySchema = computed(() => props.table?.KeySchema ?? [])
 
 type Tab = 'scan' | 'query'
 const activeTab = ref<Tab>('scan')
@@ -26,12 +27,14 @@ const activeTab = ref<Tab>('scan')
     <DynamodbItemScanPanel
       v-if="activeTab === 'scan'"
       :table-name="tableName"
+      :key-schema="keySchema"
     />
     <DynamodbItemQueryPanel
       v-else
       :table-name="tableName"
       :partition-key-name="partitionKeyName"
       :sort-key-name="sortKeyName"
+      :key-schema="keySchema"
     />
   </div>
 </template>

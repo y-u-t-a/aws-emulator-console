@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { KeyType } from '@aws-sdk/client-dynamodb'
 import type { DynamoDbItem } from '~~/shared/model/dynamodb'
 
 const props = defineProps<{
   tableName: string
+  keySchema: { AttributeName: string, KeyType?: KeyType }[]
 }>()
 
 const pageSize = ref(100)
@@ -14,7 +16,7 @@ const lastEvaluatedKeys = ref<(Record<string, unknown> | undefined)[]>([])
 const currentPage = ref(0)
 const loading = ref(false)
 const error = ref<string | null>(null)
-const executed = ref(false)
+const selected = ref<DynamoDbItem[]>([])
 
 const items = computed(() => pageCache.value[currentPage.value] ?? [])
 const totalPages = computed(() => pageCache.value.length)
@@ -41,18 +43,18 @@ async function execute() {
   pageCache.value = []
   lastEvaluatedKeys.value = []
   currentPage.value = 0
-  executed.value = false
+  selected.value = []
 
   const res = await fetchPage()
   if (!res) return
 
   pageCache.value = [res.items]
   lastEvaluatedKeys.value = [res.lastEvaluatedKey]
-  executed.value = true
 }
 
 async function nextPage() {
   const nextIndex = currentPage.value + 1
+  selected.value = []
   if (pageCache.value[nextIndex]) {
     currentPage.value = nextIndex
     return
@@ -66,7 +68,15 @@ async function nextPage() {
 }
 
 function prevPage() {
-  if (hasPrevPage.value) currentPage.value--
+  if (hasPrevPage.value) {
+    selected.value = []
+    currentPage.value--
+  }
+}
+
+function onDeleted() {
+  selected.value = []
+  execute()
 }
 </script>
 
@@ -88,6 +98,12 @@ function prevPage() {
       >
         Scan 実行
       </UButton>
+      <DynamodbItemDeleteButton
+        :table-name="tableName"
+        :items="selected"
+        :key-schema="keySchema"
+        @deleted="onDeleted"
+      />
     </div>
 
     <UAlert
@@ -98,10 +114,12 @@ function prevPage() {
       :title="error"
       class="mt-4"
     />
-    <template v-else-if="executed">
+    <template v-else>
       <DynamodbItemList
+        v-model:selected="selected"
         :items="items"
         :loading="loading"
+        :key-schema="keySchema"
       />
       <div class="flex items-center gap-3 mt-3">
         <UButton

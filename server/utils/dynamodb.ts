@@ -1,6 +1,6 @@
 import { ListTablesCommand, DescribeTableCommand, CreateTableCommand, DeleteTableCommand } from '@aws-sdk/client-dynamodb'
-import { ScanCommand, QueryCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
-import type { CreateDynamoDbTableApiRequest, DynamoDbTable, DynamoDbTableDetail, DynamoDbItem, ScanDynamoDbItemsApiRequest, QueryDynamoDbItemsApiRequest, PutDynamoDbItemApiRequest } from '#shared/model/dynamodb'
+import { ScanCommand, QueryCommand, PutCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb'
+import type { CreateDynamoDbTableApiRequest, DynamoDbTable, DynamoDbTableDetail, DynamoDbItem, ScanDynamoDbItemsApiRequest, QueryDynamoDbItemsApiRequest, PutDynamoDbItemApiRequest, DeleteDynamoDbItemsApiRequest } from '#shared/model/dynamodb'
 import { DynamoDB, DynamoDBDoc } from '#server/utils/aws-sdk-client'
 
 export async function getTableList(): Promise<DynamoDbTable[]> {
@@ -80,6 +80,12 @@ export async function queryItems(tableName: string, { partitionKeyName, partitio
 
 export async function putItem(tableName: string, { item }: PutDynamoDbItemApiRequest): Promise<void> {
   await DynamoDBDoc.send(new PutCommand({ TableName: tableName, Item: item }))
+}
+
+export async function deleteItems(tableName: string, { keys }: DeleteDynamoDbItemsApiRequest): Promise<void> {
+  await Promise.all(
+    keys.map(key => DynamoDBDoc.send(new DeleteCommand({ TableName: tableName, Key: key }))),
+  )
 }
 
 export async function getTableDetail(name: string): Promise<DynamoDbTableDetail> {

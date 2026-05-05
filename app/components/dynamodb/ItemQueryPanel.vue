@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import type { KeyType } from '@aws-sdk/client-dynamodb'
 import type { DynamoDbItem } from '~~/shared/model/dynamodb'
 
 const props = defineProps<{
   tableName: string
   partitionKeyName: string
   sortKeyName?: string
+  keySchema: { AttributeName: string, KeyType?: KeyType }[]
 }>()
 
 const partitionKeyValue = ref('')
@@ -12,14 +14,14 @@ const sortKeyValue = ref('')
 const limit = ref(100)
 
 const items = ref<DynamoDbItem[]>([])
+const selected = ref<DynamoDbItem[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
-const executed = ref(false)
 
 async function execute() {
   loading.value = true
   error.value = null
-  executed.value = false
+  selected.value = []
   try {
     items.value = await $fetch<DynamoDbItem[]>(`/api/dynamodb/${props.tableName}/items/query`, {
       method: 'POST',
@@ -31,12 +33,16 @@ async function execute() {
         limit: limit.value,
       },
     })
-    executed.value = true
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Query に失敗しました'
   } finally {
     loading.value = false
   }
+}
+
+function onDeleted() {
+  selected.value = []
+  execute()
 }
 </script>
 
@@ -76,6 +82,12 @@ async function execute() {
       >
         Query 実行
       </UButton>
+      <DynamodbItemDeleteButton
+        :table-name="tableName"
+        :items="selected"
+        :key-schema="keySchema"
+        @deleted="onDeleted"
+      />
     </div>
 
     <UAlert
@@ -86,10 +98,13 @@ async function execute() {
       :title="error"
       class="mt-4"
     />
-    <DynamodbItemList
-      v-else-if="executed"
-      :items="items"
-      :loading="loading"
-    />
+    <template v-else>
+      <DynamodbItemList
+        v-model:selected="selected"
+        :items="items"
+        :loading="loading"
+        :key-schema="keySchema"
+      />
+    </template>
   </div>
 </template>

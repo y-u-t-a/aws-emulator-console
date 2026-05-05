@@ -19,6 +19,10 @@ export const queryDynamoDbItemsApiRequestSchema = v.object({
   limit: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(1000)),
 })
 
+export const deleteDynamoDbItemsApiRequestSchema = v.object({
+  keys: v.array(v.record(v.string(), v.union([v.string(), v.number()]))),
+})
+
 export const putDynamoDbItemApiRequestSchema = v.object({
   item: v.record(v.string(), v.union([v.string(), v.number(), v.boolean(), v.null()])),
 })

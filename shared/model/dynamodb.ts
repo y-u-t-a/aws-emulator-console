@@ -3,6 +3,7 @@ import type * as v from 'valibot'
 import type {
   createDynamoDbTableApiRequestSchema,
   deleteDynamoDbTablesApiRequestSchema,
+  deleteDynamoDbItemsApiRequestSchema,
   scanDynamoDbItemsApiRequestSchema,
   queryDynamoDbItemsApiRequestSchema,
   putDynamoDbItemApiRequestSchema,
@@ -10,6 +11,7 @@ import type {
 
 export type CreateDynamoDbTableApiRequest = v.InferInput<typeof createDynamoDbTableApiRequestSchema>
 export type DeleteDynamoDbTablesApiRequest = v.InferInput<typeof deleteDynamoDbTablesApiRequestSchema>
+export type DeleteDynamoDbItemsApiRequest = v.InferInput<typeof deleteDynamoDbItemsApiRequestSchema>
 export type ScanDynamoDbItemsApiRequest = v.InferInput<typeof scanDynamoDbItemsApiRequestSchema>
 export type QueryDynamoDbItemsApiRequest = v.InferInput<typeof queryDynamoDbItemsApiRequestSchema>
 export type PutDynamoDbItemApiRequest = v.InferInput<typeof putDynamoDbItemApiRequestSchema>
