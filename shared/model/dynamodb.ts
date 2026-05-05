@@ -1,9 +1,16 @@
 import type { KeyType, TableStatus } from '@aws-sdk/client-dynamodb'
 import type * as v from 'valibot'
-import type { createDynamoDbTableApiRequestSchema, deleteDynamoDbTablesApiRequestSchema } from '#shared/schema/dynamodb'
+import type {
+  createDynamoDbTableApiRequestSchema,
+  deleteDynamoDbTablesApiRequestSchema,
+  scanDynamoDbItemsApiRequestSchema,
+  queryDynamoDbItemsApiRequestSchema,
+} from '#shared/schema/dynamodb'
 
 export type CreateDynamoDbTableApiRequest = v.InferInput<typeof createDynamoDbTableApiRequestSchema>
 export type DeleteDynamoDbTablesApiRequest = v.InferInput<typeof deleteDynamoDbTablesApiRequestSchema>
+export type ScanDynamoDbItemsApiRequest = v.InferInput<typeof scanDynamoDbItemsApiRequestSchema>
+export type QueryDynamoDbItemsApiRequest = v.InferInput<typeof queryDynamoDbItemsApiRequestSchema>
 
 export type DynamoDbTable = {
   Name: string
@@ -13,5 +20,17 @@ export type DynamoDbTable = {
   KeySchema: {
     AttributeName: string
     KeyType?: KeyType
+  }[]
+}
+
+export type DynamoDbItem = Record<string, string | number | boolean | null>
+
+export type DynamoDbTableDetail = DynamoDbTable & {
+  Arn: string
+  CreatedAt?: Date
+  GlobalSecondaryIndexes: {
+    IndexName: string
+    KeySchema: { AttributeName: string, KeyType?: KeyType }[]
+    ItemCount: number
   }[]
 }

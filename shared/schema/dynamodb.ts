@@ -6,6 +6,19 @@ export const deleteDynamoDbTablesApiRequestSchema = v.object({
   names: v.array(v.pipe(v.string(), v.minLength(1))),
 })
 
+export const scanDynamoDbItemsApiRequestSchema = v.object({
+  limit: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(1000)),
+  exclusiveStartKey: v.optional(v.record(v.string(), v.unknown())),
+})
+
+export const queryDynamoDbItemsApiRequestSchema = v.object({
+  partitionKeyName: v.pipe(v.string(), v.minLength(1)),
+  partitionKeyValue: v.pipe(v.string(), v.minLength(1)),
+  sortKeyName: v.optional(v.string()),
+  sortKeyValue: v.optional(v.string()),
+  limit: v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(1000)),
+})
+
 export const createDynamoDbTableApiRequestSchema = v.object({
   name: v.pipe(
     v.string(),

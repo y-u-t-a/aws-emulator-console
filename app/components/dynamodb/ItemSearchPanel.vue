@@ -1,0 +1,38 @@
+<script setup lang="ts">
+import type { DynamoDbTableDetail } from '~~/shared/model/dynamodb'
+
+const props = defineProps<{
+  tableName: string
+  table: DynamoDbTableDetail | null
+}>()
+
+const partitionKeyName = computed(() =>
+  props.table?.KeySchema.find(k => k.KeyType === 'HASH')?.AttributeName ?? '',
+)
+const sortKeyName = computed(() =>
+  props.table?.KeySchema.find(k => k.KeyType === 'RANGE')?.AttributeName,
+)
+
+type Tab = 'scan' | 'query'
+const activeTab = ref<Tab>('scan')
+</script>
+
+<template>
+  <div class="mt-6">
+    <UTabs
+      v-model="activeTab"
+      :items="[{ label: 'Scan', value: 'scan' }, { label: 'Query', value: 'query' }]"
+      class="mb-4"
+    />
+    <DynamodbItemScanPanel
+      v-if="activeTab === 'scan'"
+      :table-name="tableName"
+    />
+    <DynamodbItemQueryPanel
+      v-else
+      :table-name="tableName"
+      :partition-key-name="partitionKeyName"
+      :sort-key-name="sortKeyName"
+    />
+  </div>
+</template>

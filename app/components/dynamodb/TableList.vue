@@ -29,6 +29,11 @@ const columns: TableColumn<DynamoDbTable>[] = [
     :loading="loading"
     :empty-state="{ icon: 'i-lucide-database', label: 'テーブルがありません' }"
   >
+    <template #Name-cell="{ row }">
+      <RouterLink :to="{ name: 'dynamodb-tableName', params: { tableName: row.original.Name } }">
+        {{ row.original.Name }}
+      </RouterLink>
+    </template>
     <template #Status-cell="{ row }">
       <UBadge
         :color="row.original.Status === 'ACTIVE' ? 'success' : 'neutral'"
