@@ -102,7 +102,7 @@ function fieldError(field: Field): { key: string | null, value: string | null } 
 }
 
 const hasErrors = computed(() =>
-  fields.value.some(f => {
+  fields.value.some((f) => {
     const e = fieldError(f)
     return e.key !== null || e.value !== null
   }),
