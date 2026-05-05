@@ -115,20 +115,21 @@ const canSubmit = computed(() =>
   && [...keySchemaKeys.value].every(k => fields.value.some(f => f.key === k)),
 )
 
-const jsonPreview = computed(() => {
-  const obj: Record<string, unknown> = {}
-  for (const f of fields.value) {
+function toItem(fs: Field[]): Record<string, string | number | boolean | null> {
+  const obj: Record<string, string | number | boolean | null> = {}
+  for (const f of fs) {
     if (!f.key.trim()) continue
     if (f.type === 'S') obj[f.key] = f.value
     else if (f.type === 'N') obj[f.key] = f.value === '' ? 0 : Number(f.value)
     else if (f.type === 'BOOL') obj[f.key] = f.value === 'true'
     else if (f.type === 'NULL') obj[f.key] = null
   }
-  return JSON.stringify(obj, null, 2)
-})
+  return obj
+}
+
+const jsonPreview = computed(() => JSON.stringify(toItem(fields.value), null, 2))
 
 async function submit() {
-  // submit 時は全フィールドを touched にする
   fields.value.forEach((_, i) => {
     touch(i, 'key')
     touch(i, 'value')
@@ -139,7 +140,7 @@ async function submit() {
   try {
     await $fetch(`/api/dynamodb/${tableName.value}/items`, {
       method: 'POST',
-      body: { fields: fields.value },
+      body: { item: toItem(fields.value) },
     })
     toast.add({ title: 'アイテムを作成しました', color: 'success' })
     await navigateTo({ name: 'dynamodb-tableName', params: { tableName: tableName.value } })

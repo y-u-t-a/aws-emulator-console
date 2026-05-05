@@ -20,11 +20,7 @@ export const queryDynamoDbItemsApiRequestSchema = v.object({
 })
 
 export const putDynamoDbItemApiRequestSchema = v.object({
-  fields: v.array(v.object({
-    key: v.pipe(v.string(), v.trim(), v.minLength(1, 'キー名を入力してください')),
-    type: v.picklist(['S', 'N', 'BOOL', 'NULL']),
-    value: v.string(),
-  })),
+  item: v.record(v.string(), v.union([v.string(), v.number(), v.boolean(), v.null()])),
 })
 
 export const createDynamoDbTableApiRequestSchema = v.object({

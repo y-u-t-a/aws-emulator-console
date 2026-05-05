@@ -1,19 +1,7 @@
-import { ListTablesCommand, DescribeTableCommand, CreateTableCommand, DeleteTableCommand, ScanCommand, QueryCommand, PutItemCommand } from '@aws-sdk/client-dynamodb'
-import type { AttributeValue } from '@aws-sdk/client-dynamodb'
+import { ListTablesCommand, DescribeTableCommand, CreateTableCommand, DeleteTableCommand } from '@aws-sdk/client-dynamodb'
+import { ScanCommand, QueryCommand, PutCommand } from '@aws-sdk/lib-dynamodb'
 import type { CreateDynamoDbTableApiRequest, DynamoDbTable, DynamoDbTableDetail, DynamoDbItem, ScanDynamoDbItemsApiRequest, QueryDynamoDbItemsApiRequest, PutDynamoDbItemApiRequest } from '#shared/model/dynamodb'
-import { DynamoDB } from '#server/utils/aws-sdk-client'
-
-function toItem(record: Record<string, AttributeValue>): DynamoDbItem {
-  return Object.fromEntries(
-    Object.entries(record).map(([k, v]) => {
-      if (v.S !== undefined) return [k, v.S]
-      if (v.N !== undefined) return [k, Number(v.N)]
-      if (v.BOOL !== undefined) return [k, v.BOOL]
-      if (v.NULL) return [k, null]
-      return [k, JSON.stringify(v)]
-    }),
-  )
-}
+import { DynamoDB, DynamoDBDoc } from '#server/utils/aws-sdk-client'
 
 export async function getTableList(): Promise<DynamoDbTable[]> {
   const { TableNames = [] } = await DynamoDB.send(new ListTablesCommand({}))
@@ -60,19 +48,19 @@ export async function deleteTable(name: string): Promise<void> {
   await DynamoDB.send(new DeleteTableCommand({ TableName: name }))
 }
 
-export async function scanItems(tableName: string, { limit, exclusiveStartKey }: ScanDynamoDbItemsApiRequest): Promise<{ items: DynamoDbItem[], lastEvaluatedKey: Record<string, AttributeValue> | undefined }> {
-  const { Items = [], LastEvaluatedKey } = await DynamoDB.send(new ScanCommand({
+export async function scanItems(tableName: string, { limit, exclusiveStartKey }: ScanDynamoDbItemsApiRequest): Promise<{ items: DynamoDbItem[], lastEvaluatedKey: Record<string, unknown> | undefined }> {
+  const { Items = [], LastEvaluatedKey } = await DynamoDBDoc.send(new ScanCommand({
     TableName: tableName,
     Limit: limit,
-    ExclusiveStartKey: exclusiveStartKey as Record<string, AttributeValue> | undefined,
+    ExclusiveStartKey: exclusiveStartKey,
   }))
-  return { items: Items.map(toItem), lastEvaluatedKey: LastEvaluatedKey }
+  return { items: Items as DynamoDbItem[], lastEvaluatedKey: LastEvaluatedKey }
 }
 
 export async function queryItems(tableName: string, { partitionKeyName, partitionKeyValue, sortKeyName, sortKeyValue, limit }: QueryDynamoDbItemsApiRequest): Promise<DynamoDbItem[]> {
   const hasSortKey = sortKeyName && sortKeyValue
 
-  const { Items = [] } = await DynamoDB.send(new QueryCommand({
+  const { Items = [] } = await DynamoDBDoc.send(new QueryCommand({
     TableName: tableName,
     KeyConditionExpression: hasSortKey
       ? '#pk = :pk AND #sk = :sk'
@@ -82,23 +70,16 @@ export async function queryItems(tableName: string, { partitionKeyName, partitio
       ...(hasSortKey ? { '#sk': sortKeyName } : {}),
     },
     ExpressionAttributeValues: {
-      ':pk': { S: partitionKeyValue },
-      ...(hasSortKey ? { ':sk': { S: sortKeyValue } } : {}),
+      ':pk': partitionKeyValue,
+      ...(hasSortKey ? { ':sk': sortKeyValue } : {}),
     },
     Limit: limit,
   }))
-  return Items.map(toItem)
+  return Items as DynamoDbItem[]
 }
 
-export async function putItem(tableName: string, { fields }: PutDynamoDbItemApiRequest): Promise<void> {
-  const item: Record<string, AttributeValue> = {}
-  for (const { key, type, value } of fields) {
-    if (type === 'S') item[key] = { S: value }
-    else if (type === 'N') item[key] = { N: value }
-    else if (type === 'BOOL') item[key] = { BOOL: value === 'true' }
-    else if (type === 'NULL') item[key] = { NULL: true }
-  }
-  await DynamoDB.send(new PutItemCommand({ TableName: tableName, Item: item }))
+export async function putItem(tableName: string, { item }: PutDynamoDbItemApiRequest): Promise<void> {
+  await DynamoDBDoc.send(new PutCommand({ TableName: tableName, Item: item }))
 }
 
 export async function getTableDetail(name: string): Promise<DynamoDbTableDetail> {
