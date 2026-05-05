@@ -5,6 +5,7 @@
 .nitro
 .cache
 dist
+tsconfig.tsbuildinfo
 
 # Node dependencies
 node_modules
@@ -17,6 +18,10 @@ logs
 .DS_Store
 .fleet
 .idea
+
+# E2E
+test-results
+playwright-report
 
 # Local env files
 .env

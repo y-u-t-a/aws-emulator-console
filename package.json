@@ -8,7 +8,8 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1040.0",
@@ -20,6 +21,8 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "1.15.2",
+    "@playwright/test": "1.59.1",
+    "@types/node": "25.6.0",
     "eslint": "10.2.1",
     "typescript": "6.0.3",
     "vue-tsc": "3.2.7"
