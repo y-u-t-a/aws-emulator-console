@@ -49,7 +49,10 @@ function onDeleted() {
 <template>
   <div>
     <div class="flex flex-wrap items-end gap-3">
-      <UFormField :label="`${partitionKeyName}（パーティションキー）`">
+      <UFormField
+        :name="partitionKeyName"
+        :label="`${partitionKeyName}（パーティションキー）`"
+      >
         <UInput
           v-model="partitionKeyValue"
           :placeholder="partitionKeyName"

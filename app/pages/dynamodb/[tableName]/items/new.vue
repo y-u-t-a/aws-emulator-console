@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from '@nuxt/ui'
 import type { DynamoDbTableDetail } from '~~/shared/model/dynamodb'
+import type { Field, FieldType } from '~~/app/components/dynamodb/ItemFieldRow.vue'
 
 const route = useRoute('dynamodb-tableName-items-new')
 const tableName = computed(() => route.params.tableName)
@@ -18,21 +19,6 @@ const bread = computed<BreadcrumbItem[]>(() => [
   { label: 'アイテム作成' },
 ])
 
-type FieldType = 'S' | 'N' | 'BOOL' | 'NULL'
-type Field = { key: string, type: FieldType, value: string }
-
-const typeItems: { label: string, value: FieldType }[] = [
-  { label: 'String (S)', value: 'S' },
-  { label: 'Number (N)', value: 'N' },
-  { label: 'Boolean (BOOL)', value: 'BOOL' },
-  { label: 'Null (NULL)', value: 'NULL' },
-]
-
-const boolItems = [
-  { label: 'true', value: 'true' },
-  { label: 'false', value: 'false' },
-]
-
 const keySchemaKeys = computed(() =>
   new Set(table.value?.KeySchema.map(k => k.AttributeName) ?? []),
 )
@@ -47,72 +33,25 @@ function makeInitialFields(): Field[] {
 }
 
 const fields = ref<Field[]>([])
-// touched: フィールドのインデックスごとに { key, value } を管理
-const touched = ref<Set<string>>(new Set())
-
-function touchedKey(index: number, col: 'key' | 'value') {
-  return `${index}:${col}`
-}
-
-function isTouched(index: number, col: 'key' | 'value') {
-  return touched.value.has(touchedKey(index, col))
-}
-
-function touch(index: number, col: 'key' | 'value') {
-  touched.value.add(touchedKey(index, col))
-}
-
 watch(table, () => {
   fields.value = makeInitialFields()
-  touched.value = new Set()
 }, { immediate: true })
+
+const rowRefs = useTemplateRef<{ hasError: boolean, touchAll: () => void }[]>('rows')
 
 function addField() {
   fields.value.push({ key: '', type: 'S', value: '' })
-  // 追加したフィールドは touched に入れない（入力前はエラーを出さない）
 }
 
 function removeField(index: number) {
   fields.value.splice(index, 1)
-  // touched のキーを詰め直す
-  const newTouched = new Set<string>()
-  for (const key of touched.value) {
-    const [idxStr, col] = key.split(':')
-    const idx = Number(idxStr)
-    if (idx < index) newTouched.add(key)
-    else if (idx > index) newTouched.add(touchedKey(idx - 1, col as 'key' | 'value'))
-  }
-  touched.value = newTouched
 }
-
-function isKeySchemaField(index: number) {
-  return keySchemaKeys.value.has(fields.value[index]?.key ?? '')
-}
-
-function fieldError(field: Field): { key: string | null, value: string | null } {
-  const keyErr = field.key.trim() === '' ? 'キー名を入力してください' : null
-  let valueErr: string | null = null
-  if (field.type === 'N') {
-    if (field.value.trim() === '') valueErr = '値を入力してください'
-    else if (Number.isNaN(Number(field.value))) valueErr = '数値を入力してください'
-  } else if (field.type !== 'NULL' && field.type !== 'BOOL' && field.value.trim() === '') {
-    valueErr = '値を入力してください'
-  }
-  return { key: keyErr, value: valueErr }
-}
-
-const hasErrors = computed(() =>
-  fields.value.some((f) => {
-    const e = fieldError(f)
-    return e.key !== null || e.value !== null
-  }),
-)
 
 const canSubmit = computed(() =>
-  !hasErrors.value
-  && fields.value.length > 0
+  fields.value.length > 0
   && keySchemaKeys.value.size > 0
-  && [...keySchemaKeys.value].every(k => fields.value.some(f => f.key === k)),
+  && [...keySchemaKeys.value].every(k => fields.value.some(f => f.key === k))
+  && !(rowRefs.value?.some(r => r.hasError) ?? false),
 )
 
 function toItem(fs: Field[]): Record<string, string | number | boolean | null> {
@@ -130,10 +69,7 @@ function toItem(fs: Field[]): Record<string, string | number | boolean | null> {
 const jsonPreview = computed(() => JSON.stringify(toItem(fields.value), null, 2))
 
 async function submit() {
-  fields.value.forEach((_, i) => {
-    touch(i, 'key')
-    touch(i, 'value')
-  })
+  rowRefs.value?.forEach(r => r.touchAll())
   if (!canSubmit.value) return
 
   submitting.value = true
@@ -160,73 +96,20 @@ async function submit() {
   <div class="flex flex-col gap-4">
     <UBreadcrumb :items="bread" />
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-[65%_35%] gap-6">
       <div class="flex flex-col gap-3">
         <h2 class="font-semibold">
           フィールド
         </h2>
 
-        <div
+        <DynamodbItemFieldRow
           v-for="(field, index) in fields"
+          ref="rows"
           :key="index"
-          class="flex items-start gap-2"
-        >
-          <div class="flex flex-col gap-1">
-            <UInput
-              v-model="field.key"
-              placeholder="キー名"
-              :disabled="isKeySchemaField(index)"
-              :color="isTouched(index, 'key') && fieldError(field).key ? 'error' : undefined"
-              class="w-36"
-              @input="touch(index, 'key')"
-              @blur="touch(index, 'key')"
-            />
-            <p
-              v-if="isTouched(index, 'key') && fieldError(field).key"
-              class="text-xs text-red-500"
-            >
-              {{ fieldError(field).key }}
-            </p>
-          </div>
-          <USelect
-            v-model="field.type"
-            :items="typeItems"
-            class="w-40"
-          />
-          <div class="flex flex-col gap-1 flex-1">
-            <USelect
-              v-if="field.type === 'BOOL'"
-              v-model="field.value"
-              :items="boolItems"
-            />
-            <UInput
-              v-else-if="field.type !== 'NULL'"
-              v-model="field.value"
-              :placeholder="field.type === 'N' ? '0' : '値'"
-              :color="isTouched(index, 'value') && fieldError(field).value ? 'error' : undefined"
-              @input="touch(index, 'value')"
-              @blur="touch(index, 'value')"
-            />
-            <span
-              v-else
-              class="text-sm text-neutral-400 py-1.5"
-            >null</span>
-            <p
-              v-if="isTouched(index, 'value') && fieldError(field).value"
-              class="text-xs text-red-500"
-            >
-              {{ fieldError(field).value }}
-            </p>
-          </div>
-          <UButton
-            icon="i-lucide-x"
-            color="neutral"
-            variant="ghost"
-            size="sm"
-            :disabled="isKeySchemaField(index)"
-            @click="removeField(index)"
-          />
-        </div>
+          v-model="fields[index]!"
+          :key-fixed="keySchemaKeys.has(field.key)"
+          @remove="removeField(index)"
+        />
 
         <UButton
           icon="i-lucide-plus"
